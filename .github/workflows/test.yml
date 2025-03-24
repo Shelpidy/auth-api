@@ -1,0 +1,33 @@
+name: Formating Working
+
+run-name: Formating project....
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup node environment
+        uses: action/setup-node@v3
+        with:
+            node-version: 20
+      - name: Install packages
+        run: npm install
+      - name: Format code
+        run: npm run format
+  deploy:
+    name: Deploy to ec2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install deployment tools
+        run: |
+          if ! command -v rsync &> /dev/null;then
+              sudo apt-get install rsync
+          fi
+
+          

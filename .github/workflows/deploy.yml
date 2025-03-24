@@ -1,0 +1,80 @@
+name: Deploy to EC2
+run-name: Running CD Pipeline; deploying server to AWS EC2
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install rsync and SSH client
+        run: sudo apt-get install -y rsync openssh-client
+
+      - name: Deploy using rsync
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.EC2_HOST_DNS }}
+          REMOTE_USER: ${{ secrets.EC2_USERNAME }}
+          TARGET_DIR: ${{ secrets.TARGET_DIR }}
+        run: |
+          # Set up SSH keys
+          echo "$SSH_PRIVATE_KEY" > key.pem
+          chmod 600 key.pem
+
+          # Use rsync to transfer all files to the EC2 home directory
+          rsync -avz --exclude='dist/' --exclude='dev/' --exclude='node_modules/' --exclude='.github/' -e "ssh -i key.pem -o StrictHostKeyChecking=no" ./ $REMOTE_USER@$REMOTE_HOST:~/$TARGET_DIR/
+
+          # Clean up SSH key after deployment
+          rm key.pem
+
+      - name: Run post-deployment scripts
+        env:
+          REMOTE_HOST: ${{ secrets.EC2_HOST_DNS }}
+          REMOTE_USER: ${{ secrets.EC2_USERNAME }}
+          TARGET_DIR: ${{ secrets.TARGET_DIR }}
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          # Set up SSH keys
+          echo "$SSH_PRIVATE_KEY" > key.pem
+          chmod 600 key.pem
+          ssh -i key.pem -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST << 'EOF'
+            echo "UPDATING LINUX PACKAGES..."
+            sudo apt-get update -y
+            sudo apt-get upgrade -y
+
+            # Ensure Docker and Docker Compose are installed
+            if ! command -v docker &> /dev/null; then
+              echo "Docker not found, installing..."
+              sudo apt install -y docker.io
+            fi
+
+            if ! command -v docker-compose &> /dev/null; then
+              echo "Docker Compose not found, installing..."
+              sudo apt install -y docker-compose
+            fi
+
+            # Navigate to the target directory in the home directory
+            cd ~/server/
+
+            echo "Working directory: $(pwd)"
+
+            # Check if docker-compose.yml exists
+            if [ ! -f "docker-compose.yml" ]; then
+              echo "docker-compose.yml not found! Exiting."
+              exit 1
+            fi
+
+            echo "SHUTTING DOWN EXISTING SERVICES"
+            sudo docker-compose down
+
+            echo "BUILDING AND DEPLOYING DOCKER SERVICES"
+            sudo docker-compose up -d --build
+
+            # Clean up SSH key after deployment
+            rm key.pem
+          EOF

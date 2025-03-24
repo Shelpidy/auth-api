@@ -1,0 +1,648 @@
+{
+    "signUp": {
+      "request": {
+        "username": "john_doe",
+        "email": "john.doe@example.com",
+        "password": "password123",
+        "photo": "base64_encoded_image",
+        "profile": {
+          "fullName": "John Doe",
+          "firstName": "John",
+          "middleName": "Michael",
+          "lastName": "Doe",
+          "gender": "Male",
+          "dateOfBirth": "1990-01-01",
+          "phone": "+1234567890"
+        },
+        "location": {
+          "addressLine1": "123 Main St",
+          "addressLine2": "Apt 4B",
+          "city": "New York",
+          "state": "NY",
+          "province": "",
+          "postalCode": "10001",
+          "country": "USA",
+          "latitude": 40.7128,
+          "longitude": -74.0060
+        }
+      },
+      "response": {
+        "message": "User registered successfully",
+        "user": {
+          "userId": "uuid",
+          "username": "john_doe",
+          "email": "john.doe@example.com",
+          "photo": "base64_encoded_image",
+          "isVerified": false,
+          "createdAt": "2025-03-11T08:32:49Z",
+          "updatedAt": "2025-03-11T08:32:49Z"
+        }
+      }
+    },
+    "verifyEmail": {
+      "request": {
+        "email": "john.doe@example.com",
+        "otp": "123456"
+      },
+      "response": {
+        "message": "Email verified successfully"
+      }
+    },
+    "signIn": {
+      "request": {
+        "email": "john.doe@example.com",
+        "password": "password123"
+      },
+      "response": {
+        "message": "Sign in successful",
+        "token": "jwt_token",
+        "user": {
+          "userId": "uuid",
+          "username": "john_doe",
+          "photo": "base64_encoded_image",
+          "email": "john.doe@example.com",
+          "isVerified": true,
+          "createdAt": "2025-03-11T08:32:49Z",
+          "updatedAt": "2025-03-11T08:32:49Z",
+          "auth": {
+            "lastLoginAt": "2025-03-11T08:32:49Z",
+            "lastLoginIp": "::1"
+          },
+          "userRoles": [
+            {
+              "role": {
+                "roleId": "uuid",
+                "name": "admin"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "forgotPassword": {
+      "request": {
+        "email": "john.doe@example.com"
+      },
+      "response": {
+        "message": "OTP sent successfully to your email"
+      }
+    },
+    "resetPassword": {
+      "request": {
+        "email": "john.doe@example.com",
+        "otp": "123456",
+        "newPassword": "newpassword123"
+      },
+      "response": {
+        "message": "Password reset successful"
+      }
+    },
+    "createTenant": {
+      "request": {
+        "name": "Acme Corp",
+        "legalName": "Acme Corporation",
+        "description": "A leading company in innovation",
+        "registrationNumber": "123456789",
+        "industry": "Technology",
+        "contact": {
+          "email": "info@acme.com",
+          "phone": "+1234567890",
+          "website": "https://acme.com"
+        },
+        "settings": {
+          "logo": "base64_encoded_logo",
+          "primaryColor": "#FF0000",
+          "secondaryColor": "#00FF00",
+          "timezone": "America/New_York",
+          "locale": "en-US",
+          "currency": "USD"
+        }
+      },
+      "response": {
+        "message": "Tenant created successfully",
+        "tenant": {
+          "tenantId": "uuid",
+          "name": "Acme Corp",
+          "legalName": "Acme Corporation",
+          "description": "A leading company in innovation",
+          "registrationNumber": "123456789",
+          "industry": "Technology",
+          "createdAt": "2025-03-11T08:32:49Z",
+          "updatedAt": "2025-03-11T08:32:49Z",
+          "contact": {
+            "contactId": "uuid",
+            "email": "info@acme.com",
+            "phone": "+1234567890",
+            "website": "https://acme.com",
+            "createdAt": "2025-03-11T08:32:49Z",
+            "updatedAt": "2025-03-11T08:32:49Z"
+          },
+          "settings": {
+            "settingId": "uuid",
+            "logo": "base64_encoded_logo",
+            "primaryColor": "#FF0000",
+            "secondaryColor": "#00FF00",
+            "timezone": "America/New_York",
+            "locale": "en-US",
+            "currency": "USD",
+            "createdAt": "2025-03-11T08:32:49Z",
+            "updatedAt": "2025-03-11T08:32:49Z"
+          }
+        }
+      }
+    },
+    "updateTenant": {
+      "request": {
+        "name": "Acme Corp Updated"
+      },
+      "response": {
+        "message": "Tenant updated successfully",
+        "tenant": {
+          "tenantId": "uuid",
+          "name": "Acme Corp Updated",
+          "legalName": "Acme Corporation",
+          "description": "A leading company in innovation",
+          "registrationNumber": "123456789",
+          "industry": "Technology",
+          "status": "active",
+          "createdAt": "2025-03-11T08:32:49Z",
+          "updatedAt": "2025-03-11T08:32:49Z",
+          "deletedAt": null,
+          "isDeleted": false,
+          "contact": {
+            "contactId": "uuid",
+            "email": "info@acme.com",
+            "phone": "+1234567890",
+            "website": "https://acme.com",
+            "createdAt": "2025-03-11T08:32:49Z",
+            "updatedAt": "2025-03-11T08:32:49Z"
+          },
+          "settings": {
+            "settingId": "uuid",
+            "logo": "base64_encoded_logo",
+            "primaryColor": "#FF0000",
+            "secondaryColor": "#00FF00",
+            "timezone": "America/New_York",
+            "locale": "en-US",
+            "currency": "USD",
+            "createdAt": "2025-03-11T08:32:49Z",
+            "updatedAt": "2025-03-11T08:32:49Z"
+          },
+          "locations": [
+            {
+              "locationId": "uuid",
+              "addressLine1": "456 Elm St",
+              "addressLine2": "Suite 100",
+              "city": "Los Angeles",
+              "state": "CA",
+              "province": "",
+              "postalCode": "90001",
+              "country": "USA",
+              "latitude": 34.0522,
+              "longitude": -118.2437,
+              "createdAt": "2025-03-11T08:32:49Z",
+              "updatedAt": "2025-03-11T08:32:49Z"
+            }
+          ]
+        }
+      }
+    },
+    "addTenantLocation": {
+      "request": {
+        "addressLine1": "456 Elm St",
+        "addressLine2": "Suite 100",
+        "city": "Los Angeles",
+        "state": "CA",
+        "province": "",
+        "postalCode": "90001",
+        "country": "USA",
+        "latitude": 34.0522,
+        "longitude": -118.2437
+      },
+      "response": {
+        "message": "Location added successfully",
+        "location": {
+          "locationId": "uuid",
+          "tenantId": "uuid",
+          "addressLine1": "456 Elm St",
+          "addressLine2": "Suite 100",
+          "city": "Los Angeles",
+          "state": "CA",
+          "province": "",
+          "postalCode": "90001",
+          "country": "USA",
+          "latitude": 34.0522,
+          "longitude": -118.2437,
+          "createdAt": "2025-03-11T08:32:49Z",
+          "updatedAt": "2025-03-11T08:32:49Z"
+        }
+      }
+    },
+    "createRole": {
+      "request": {
+        "name": "manager"
+      },
+      "response": {
+        "message": "Role created successfully",
+        "role": {
+          "roleId": "uuid",
+          "name": "manager",
+          "createdAt": "2025-03-11T08:32:49Z",
+          "updatedAt": "2025-03-11T08:32:49Z"
+        }
+      }
+    },
+    "updateRole": {
+      "request": {
+        "name": "super-admin"
+      },
+      "response": {
+        "message": "Role updated successfully",
+        "role": {
+          "roleId": "uuid",
+          "name": "super-admin",
+          "createdAt": "2025-03-11T08:32:49Z",
+          "updatedAt": "2025-03-11T08:32:49Z"
+        }
+      }
+    },
+    "assignRoleToUser": {
+      "request": {
+        "roleId": "uuid-of-role"
+      },
+      "response": {
+        "message": "Role assigned successfully"
+      }
+    },
+    "assignTenantToUser": {
+      "request": {
+        "tenantId": "uuid-of-tenant"
+      },
+      "response": {
+        "message": "Tenant assigned successfully",
+        "user": {
+          "userId": "uuid",
+          "username": "john_doe",
+          "email": "john.doe@example.com",
+          "tenantId": "uuid-of-tenant",
+          "tenant": {
+            "tenantId": "uuid-of-tenant",
+            "name": "Acme Corp",
+            "legalName": "Acme Corporation",
+            "description": "A leading company in innovation",
+            "registrationNumber": "123456789",
+            "industry": "Technology",
+            "status": "active",
+            "createdAt": "2025-03-11T08:32:49Z",
+            "updatedAt": "2025-03-11T08:32:49Z",
+            "deletedAt": null,
+            "isDeleted": false
+          }
+        }
+      }
+    },
+    "updateUserProfile": {
+      "request": {
+        "user": {
+          "username": "john_doe_updated",
+          "email": "john.doe.updated@example.com",
+          "photo": "new_base64_encoded_image"
+        },
+        "profile": {
+          "fullName": "John Doe Updated",
+          "firstName": "John",
+          "middleName": "Michael",
+          "lastName": "Doe",
+          "gender": "Male",
+          "dateOfBirth": "1990-01-01",
+          "phone": "+1234567890"
+        }
+      },
+      "response": {
+        "message": "User updated successfully",
+        "data": {
+          "user": {
+            "userId": "uuid",
+            "username": "john_doe_updated",
+            "email": "john.doe.updated@example.com",
+            "photo": "new_base64_encoded_image",
+            "updatedAt": "2025-03-11T08:32:49Z",
+            "isVerified": true,
+            "createdAt": "2025-03-11T08:32:49Z"
+          },
+          "profile": {
+            "fullName": "John Doe Updated",
+            "firstName": "John",
+            "middleName": "Michael",
+            "lastName": "Doe",
+            "gender": "Male",
+            "dateOfBirth": "1990-01-01",
+            "phone": "+1234567890",
+            "createdAt": "2025-03-11T08:32:49Z",
+            "updatedAt": "2025-03-11T08:32:49Z"
+          }
+        }
+      }
+    },
+    "addUserLocation": {
+      "request": {
+        "addressLine1": "789 Oak St",
+        "addressLine2": "Apt 5C",
+        "city": "Chicago",
+        "state": "IL",
+        "province": "",
+        "postalCode": "60601",
+        "country": "USA",
+        "latitude": 41.8781,
+        "longitude": -87.6298
+      },
+      "response": {
+        "message": "Location added successfully",
+        "location": {
+          "locationId": "uuid",
+          "userId": "uuid",
+          "addressLine1": "789 Oak St",
+          "addressLine2": "Apt 5C",
+          "city": "Chicago",
+          "state": "IL",
+          "province": "",
+          "postalCode": "60601",
+          "country": "USA",
+          "latitude": 41.8781,
+          "longitude": -87.6298,
+          "createdAt": "2025-03-11T08:32:49Z",
+          "updatedAt": "2025-03-11T08:32:49Z"
+        }
+      }
+    },
+    "updateUserLocation": {
+      "request": {
+        "addressLine1": "789 Oak St Updated",
+        "addressLine2": "Apt 5D",
+        "city": "Chicago",
+        "state": "IL",
+        "province": "",
+        "postalCode": "60601",
+        "country": "USA",
+        "latitude": 41.8781,
+        "longitude": -87.6298
+      },
+      "response": {
+        "message": "Location updated successfully",
+        "location": {
+          "locationId": "uuid",
+          "userId": "uuid",
+          "addressLine1": "789 Oak St Updated",
+          "addressLine2": "Apt 5D",
+          "city": "Chicago",
+          "state": "IL",
+          "province": "",
+          "postalCode": "60601",
+          "country": "USA",
+          "latitude": 41.8781,
+          "longitude": -87.6298,
+          "createdAt": "2025-03-11T08:32:49Z",
+          "updatedAt": "2025-03-11T08:32:49Z"
+        }
+      }
+    },
+    "getAllUsers": {
+      "response": {
+        "data": [
+          {
+            "userId": "uuid",
+            "username": "john_doe",
+            "email": "john.doe@example.com",
+            "photo": "base64_encoded_image",
+            "isVerified": true,
+            "createdAt": "2025-03-11T08:32:49Z",
+            "updatedAt": "2025-03-11T08:32:49Z",
+            "profile": {
+              "fullName": "John Doe",
+              "firstName": "John",
+              "middleName": "Michael",
+              "lastName": "Doe",
+              "gender": "Male",
+              "dateOfBirth": "1990-01-01",
+              "phone": "+1234567890",
+              "createdAt": "2025-03-11T08:32:49Z",
+              "updatedAt": "2025-03-11T08:32:49Z"
+            },
+            "auth": {
+              "lastLoginAt": "2025-03-11T08:32:49Z",
+              "lastLoginIp": "::1"
+            },
+            "tenant": {
+              "tenantId": "uuid",
+              "name": "Acme Corp",
+              "legalName": "Acme Corporation",
+              "description": "A leading company in innovation",
+              "registrationNumber": "123456789",
+              "industry": "Technology",
+              "status": "active",
+              "createdAt": "2025-03-11T08:32:49Z",
+              "updatedAt": "2025-03-11T08:32:49Z",
+              "deletedAt": null,
+              "isDeleted": false
+            },
+            "userRoles": [
+              {
+                "userId": "uuid",
+                "roleId": "uuid",
+                "role": {
+                  "roleId": "uuid",
+                  "name": "admin"
+                }
+              }
+            ],
+            "locations": [
+              {
+                "locationId": "uuid",
+                "addressLine1": "123 Main St",
+                "addressLine2": "Apt 4B",
+                "city": "New York",
+                "state": "NY",
+                "province": "",
+                "postalCode": "10001",
+                "country": "USA",
+                "latitude": 40.7128,
+                "longitude": -74.0060,
+                "createdAt": "2025-03-11T08:32:49Z",
+                "updatedAt": "2025-03-11T08:32:49Z"
+              }
+            ]
+          }
+        ],
+        "metadata": {
+          "currentPage": 1,
+          "limit": 10,
+          "totalItems": 1,
+          "totalPages": 1,
+          "hasNextPage": false,
+          "hasPreviousPage": false
+        }
+      }
+    },
+    "getUserProfile": {
+      "response": {
+        "userId": "uuid",
+        "username": "john_doe",
+        "email": "john.doe@example.com",
+        "photo": "base64_encoded_image",
+        "isVerified": true,
+        "createdAt": "2025-03-11T08:32:49Z",
+        "updatedAt": "2025-03-11T08:32:49Z",
+        "profile": {
+          "fullName": "John Doe",
+          "firstName": "John",
+          "middleName": "Michael",
+          "lastName": "Doe",
+          "gender": "Male",
+          "dateOfBirth": "1990-01-01",
+          "phone": "+1234567890",
+          "createdAt": "2025-03-11T08:32:49Z",
+          "updatedAt": "2025-03-11T08:32:49Z"
+        },
+        "auth": {
+          "lastLoginAt": "2025-03-11T08:32:49Z",
+          "lastLoginIp": "::1"
+        },
+        "tenant": {
+          "tenantId": "uuid",
+          "name": "Acme Corp",
+          "legalName": "Acme Corporation",
+          "description": "A leading company in innovation",
+          "registrationNumber": "123456789",
+          "industry": "Technology",
+          "status": "active",
+          "createdAt": "2025-03-11T08:32:49Z",
+          "updatedAt": "2025-03-11T08:32:49Z",
+          "deletedAt": null,
+          "isDeleted": false
+        },
+        "userRoles": [
+          {
+            "userId": "uuid",
+            "roleId": "uuid",
+            "role": {
+              "roleId": "uuid",
+              "name": "admin"
+            }
+          }
+        ],
+        "locations": [
+          {
+            "locationId": "uuid",
+            "addressLine1": "123 Main St",
+            "addressLine2": "Apt 4B",
+            "city": "New York",
+            "state": "NY",
+            "province": "",
+            "postalCode": "10001",
+            "country": "USA",
+            "latitude": 40.7128,
+            "longitude": -74.0060,
+            "createdAt": "2025-03-11T08:32:49Z",
+            "updatedAt": "2025-03-11T08:32:49Z"
+          }
+        ]
+      }
+    },
+    "getAllRoles": {
+      "response": [
+        {
+          "roleId": "uuid",
+          "name": "admin",
+          "createdAt": "2025-03-11T08:32:49Z",
+          "updatedAt": "2025-03-11T08:32:49Z"
+        },
+        {
+          "roleId": "uuid",
+          "name": "user",
+          "createdAt": "2025-03-11T08:32:49Z",
+          "updatedAt": "2025-03-11T08:32:49Z"
+        }
+      ]
+    },
+    "getRoleById": {
+      "response": {
+        "roleId": "uuid",
+        "name": "admin",
+        "createdAt": "2025-03-11T08:32:49Z",
+        "updatedAt": "2025-03-11T08:32:49Z",
+        "userCount": 1
+      }
+    },
+    "getUsersByRole": {
+      "response": {
+        "data": [
+          {
+            "userId": "uuid",
+            "username": "john_doe",
+            "email": "john.doe@example.com",
+            "photo": "base64_encoded_image"
+          }
+        ],
+        "metadata": {
+          "currentPage": 1,
+          "limit": 10,
+          "totalItems": 1,
+          "totalPages": 1,
+          "hasNextPage": false,
+          "hasPreviousPage": false
+        }
+      }
+    },
+    "getTenantLocations": {
+      "response": [
+        {
+          "locationId": "uuid",
+          "tenantId": "uuid",
+          "addressLine1": "456 Elm St",
+          "addressLine2": "Suite 100",
+          "city": "Los Angeles",
+          "state": "CA",
+          "province": "",
+          "postalCode": "90001",
+          "country": "USA",
+          "latitude": 34.0522,
+          "longitude": -118.2437,
+          "createdAt": "2025-03-11T08:32:49Z",
+          "updatedAt": "2025-03-11T08:32:49Z"
+        }
+      ]
+    },
+    "getUserLocations": {
+      "response": [
+        {
+          "locationId": "uuid",
+          "userId": "uuid",
+          "addressLine1": "123 Main St",
+          "addressLine2": "Apt 4B",
+          "city": "New York",
+          "state": "NY",
+          "province": "",
+          "postalCode": "10001",
+          "country": "USA",
+          "latitude": 40.7128,
+          "longitude": -74.0060,
+          "createdAt": "2025-03-11T08:32:49Z",
+          "updatedAt": "2025-03-11T08:32:49Z"
+        }
+      ]
+    },
+    "loggingExample": {
+      "response": {
+        "duration": "952ms",
+        "ip": "::1",
+        "level": "info",
+        "message": "Request processed",
+        "method": "GET",
+        "query": {},
+        "status": 200,
+        "timestamp": "2025-03-11 08:32:49",
+        "url": "/tenants",
+        "userAgent": "PostmanRuntime/7.43.0"
+      }
+    }
+  }
