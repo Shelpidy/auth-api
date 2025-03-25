@@ -36,7 +36,7 @@
 //             .insert(users)
 //             .values({
 //               email: profile.emails?.[0]?.value || "",
-//               username: profile.username || 
+//               username: profile.username ||
 //                 profile.displayName.toLowerCase().replace(/\s+/g, ""),
 //               password: "", // OAuth users don't need password
 //               photo: profile._json?.avatar_url,

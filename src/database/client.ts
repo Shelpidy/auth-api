@@ -1,11 +1,11 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
-import * as schema from "./schema";
-import * as dotenv from "dotenv";
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+import * as schema from './schema';
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-const isTest = process.env.NODE_ENV === "test";
+const isTest = process.env.NODE_ENV === 'test';
 
 export const pool = new Pool({
   user: isTest ? process.env.POSTGRES_TEST_USER : process.env.POSTGRES_USER,

@@ -1,5 +1,15 @@
 import { Type } from 'class-transformer';
-import { IsString, IsEmail, MinLength, IsOptional, IsDateString, Matches, ValidateNested, IsNumber, IsNotEmpty } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  MinLength,
+  IsOptional,
+  IsDateString,
+  Matches,
+  ValidateNested,
+  IsNumber,
+  IsNotEmpty,
+} from 'class-validator';
 
 export class UserProfileDto {
   @IsOptional()
@@ -157,7 +167,6 @@ export class LoginDto {
   @MinLength(6)
   password: string;
 }
-
 
 export class ForgotPasswordDto {
   @IsEmail()

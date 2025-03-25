@@ -1,5 +1,14 @@
 import { Type } from 'class-transformer';
-import { IsString, IsUUID, IsOptional, IsNumber, ValidateNested, IsBoolean, IsDate, IsNotEmpty } from 'class-validator';
+import {
+  IsString,
+  IsUUID,
+  IsOptional,
+  IsNumber,
+  ValidateNested,
+  IsBoolean,
+  IsDate,
+  IsNotEmpty,
+} from 'class-validator';
 
 export class UserDataDto {
   @IsOptional()
@@ -91,7 +100,7 @@ export class UserProfileDataDto {
 
   @IsOptional()
   @IsString()
-  date_of_birth?: string;  // Changed from Date to string
+  date_of_birth?: string; // Changed from Date to string
 
   @IsOptional()
   @IsString()

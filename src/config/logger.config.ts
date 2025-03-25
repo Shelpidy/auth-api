@@ -1,6 +1,6 @@
 import { LoggerService } from '@nestjs/common';
-import winston from "winston";
-import "winston-daily-rotate-file";
+import winston from 'winston';
+import 'winston-daily-rotate-file';
 import * as path from 'path';
 import * as fs from 'fs';
 

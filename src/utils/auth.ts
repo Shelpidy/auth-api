@@ -1,9 +1,9 @@
-import * as bcrypt from "bcrypt";
-import dotenv from "dotenv";
+import * as bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
 
 dotenv?.config();
 
-const SECRET = process.env.JWT_SECRET || "supersecret";
+const SECRET = process.env.JWT_SECRET || 'supersecret';
 
 /** Hash password */
 export const hashPassword = async (password: string): Promise<string> => {

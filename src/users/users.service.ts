@@ -1,8 +1,18 @@
-import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../database/schema';
 import { and, eq, sql } from 'drizzle-orm';
-import { UserUpdateDto, UserLocationDto, CreateUserPaymentDto, UpdateUserPaymentDto} from './dto/user.dto';
+import {
+  UserUpdateDto,
+  UserLocationDto,
+  CreateUserPaymentDto,
+  UpdateUserPaymentDto,
+} from './dto/user.dto';
 import { nanoid } from 'nanoid';
 import { AuditService } from '../common/services/audit.service';
 
@@ -11,7 +21,7 @@ export class UsersService {
   constructor(
     @Inject('DATABASE_CONNECTION')
     private db: NodePgDatabase<typeof schema>,
-    private auditService: AuditService
+    private auditService: AuditService,
   ) {}
 
   async findAll(page: number, limit: number) {
@@ -116,8 +126,8 @@ export class UsersService {
         const existingPhone = await tx.query.user_profiles.findFirst({
           where: and(
             eq(schema.user_profiles.primary_phone, profileData.primary_phone),
-            sql`${schema.user_profiles.user_nano_id} != ${user_nano_id}`
-          )
+            sql`${schema.user_profiles.user_nano_id} != ${user_nano_id}`,
+          ),
         });
 
         if (existingPhone) {
@@ -130,7 +140,7 @@ export class UsersService {
         [user] = await tx
           .update(schema.users)
           .set({
-            ...userData
+            ...userData,
           })
           .where(eq(schema.users.user_nano_id, user_nano_id))
           .returning();
@@ -145,7 +155,9 @@ export class UsersService {
         // Convert date string to proper format if present
         const formattedProfile = {
           ...profileData,
-          date_of_birth: profileData.date_of_birth ? new Date(profileData.date_of_birth).toISOString() : undefined
+          date_of_birth: profileData.date_of_birth
+            ? new Date(profileData.date_of_birth).toISOString()
+            : undefined,
         };
 
         [profile] = await tx
@@ -156,14 +168,14 @@ export class UsersService {
       }
 
       let safeUser;
-      if(user) {
-        const {password, ...rest} = user;
+      if (user) {
+        const { password, ...rest } = user;
         safeUser = rest;
       }
 
-      return { 
+      return {
         message: 'User updated successfully',
-        user: { ...safeUser, profile }
+        user: { ...safeUser, profile },
       };
     });
   }
@@ -184,9 +196,9 @@ export class UsersService {
   async assignRole(user_nano_id: string, role_nano_id: string) {
     await this.db
       .insert(schema.user_roles)
-      .values({ 
-        user_nano_id, 
-        role_nano_id
+      .values({
+        user_nano_id,
+        role_nano_id,
       })
       .onConflictDoNothing();
 
@@ -196,10 +208,12 @@ export class UsersService {
   async removeRole(user_nano_id: string, role_nano_id: string) {
     const result = await this.db
       .delete(schema.user_roles)
-      .where(and(
-        eq(schema.user_roles.user_nano_id, user_nano_id),
-        eq(schema.user_roles.role_nano_id, role_nano_id)
-      ))
+      .where(
+        and(
+          eq(schema.user_roles.user_nano_id, user_nano_id),
+          eq(schema.user_roles.role_nano_id, role_nano_id),
+        ),
+      )
       .returning();
 
     if (!result.length) {
@@ -217,9 +231,8 @@ export class UsersService {
         ...locationDto,
         user_nano_id,
         user_location_nano_id,
-        user_location_id: await this.getNextLocationId(),
         created_by: user_nano_id,
-        created_on: new Date()
+        created_on: new Date(),
       })
       .returning();
 
@@ -229,26 +242,26 @@ export class UsersService {
     };
   }
 
-  private async getNextLocationId(): Promise<number> {
-    const result = await this.db
-      .select({ max: sql<number>`COALESCE(MAX(user_location_id), 0)` })
-      .from(schema.user_locations);
-    return (result[0].max || 0) + 1;
-  }
+  // private async getNextLocationId(): Promise<number> {
+  //   const result = await this.db
+  //     .select({ max: sql<number>`COALESCE(MAX(user_location_id), 0)` })
+  //     .from(schema.user_locations);
+  //   return (result[0].max || 0) + 1;
+  // }
 
-  private async getNextUserId(): Promise<number> {
-    const result = await this.db
-      .select({ max: sql<number>`COALESCE(MAX(user_id), 0)` })
-      .from(schema.users);
-    return (result[0].max || 0) + 1;
-  }
+  // private async getNextUserId(): Promise<number> {
+  //   const result = await this.db
+  //     .select({ max: sql<number>`COALESCE(MAX(user_id), 0)` })
+  //     .from(schema.users);
+  //   return (result[0].max || 0) + 1;
+  // }
 
-  private async getNextProfileId(): Promise<number> {
-    const result = await this.db
-      .select({ max: sql<number>`COALESCE(MAX(user_profile_id), 0)` })
-      .from(schema.user_profiles);
-    return (result[0].max || 0) + 1;
-  }
+  // private async getNextProfileId(): Promise<number> {
+  //   const result = await this.db
+  //     .select({ max: sql<number>`COALESCE(MAX(user_profile_id), 0)` })
+  //     .from(schema.user_profiles);
+  //   return (result[0].max || 0) + 1;
+  // }
 
   async getLocations(user_nano_id: string) {
     const locations = await this.db.query.user_locations.findMany({
@@ -258,16 +271,22 @@ export class UsersService {
     return locations;
   }
 
-  async updateLocation(user_nano_id: string, location_nano_id: string, locationDto: UserLocationDto) {
+  async updateLocation(
+    user_nano_id: string,
+    location_nano_id: string,
+    locationDto: UserLocationDto,
+  ) {
     const [location] = await this.db
       .update(schema.user_locations)
       .set({
-        ...locationDto
+        ...locationDto,
       })
-      .where(and(
-        eq(schema.user_locations.user_nano_id, user_nano_id),
-        eq(schema.user_locations.user_location_nano_id, location_nano_id)
-      ))
+      .where(
+        and(
+          eq(schema.user_locations.user_nano_id, user_nano_id),
+          eq(schema.user_locations.user_location_nano_id, location_nano_id),
+        ),
+      )
       .returning();
 
     if (!location) {
@@ -343,10 +362,12 @@ export class UsersService {
   async removeLocation(user_nano_id: string, location_nano_id: string) {
     const [deletedLocation] = await this.db
       .delete(schema.user_locations)
-      .where(and(
-        eq(schema.user_locations.user_nano_id, user_nano_id),
-        eq(schema.user_locations.user_location_nano_id, location_nano_id)
-      ))
+      .where(
+        and(
+          eq(schema.user_locations.user_nano_id, user_nano_id),
+          eq(schema.user_locations.user_location_nano_id, location_nano_id),
+        ),
+      )
       .returning();
 
     if (!deletedLocation) {
@@ -377,9 +398,7 @@ export class UsersService {
           },
         },
       }),
-      this.db
-        .select({ count: sql<number>`count(*)` })
-        .from(schema.users)
+      this.db.select({ count: sql<number>`count(*)` }).from(schema.users)
         .where(sql`
           ${schema.users.username} ILIKE ${searchPattern} OR
           ${schema.users.email} ILIKE ${searchPattern}
@@ -411,20 +430,25 @@ export class UsersService {
       },
     });
 
-    return userRoles.map(ur => ur.role);
+    return userRoles.map((ur) => ur.role);
   }
 
   // User Payments
-  async createPayment(user_nano_id: string, dto: CreateUserPaymentDto, creator_full_name: string) {
+  async createPayment(
+    user_nano_id: string,
+    dto: CreateUserPaymentDto,
+    creator_full_name: string,
+  ) {
     const user_payment_nano_id = nanoid();
 
-    const [payment] = await this.db.insert(schema.user_payments)
+    const [payment] = await this.db
+      .insert(schema.user_payments)
       .values({
         user_payment_nano_id,
         ...dto,
         user_nano_id,
         created_by: creator_full_name,
-        created_on: new Date()
+        created_on: new Date(),
       })
       .returning();
 
@@ -433,7 +457,7 @@ export class UsersService {
       record_id: payment.user_payment_nano_id,
       action: 'CREATE',
       new_data: payment,
-      changed_by: creator_full_name
+      changed_by: creator_full_name,
     });
 
     return payment;
@@ -441,17 +465,24 @@ export class UsersService {
 
   async getUserPayments(user_nano_id: string) {
     return this.db.query.user_payments.findMany({
-      where: eq(schema.user_payments.user_nano_id, user_nano_id)
+      where: eq(schema.user_payments.user_nano_id, user_nano_id),
     });
   }
 
-  async updatePayment(user_payment_nano_id: string, dto: UpdateUserPaymentDto, updater_full_name: string) {
-    const [payment] = await this.db.update(schema.user_payments)
+  async updatePayment(
+    user_payment_nano_id: string,
+    dto: UpdateUserPaymentDto,
+    updater_full_name: string,
+  ) {
+    const [payment] = await this.db
+      .update(schema.user_payments)
       .set({
         ...dto,
-        created_by: updater_full_name
+        created_by: updater_full_name,
       })
-      .where(eq(schema.user_payments.user_payment_nano_id, user_payment_nano_id))
+      .where(
+        eq(schema.user_payments.user_payment_nano_id, user_payment_nano_id),
+      )
       .returning();
 
     if (!payment) {
@@ -463,7 +494,7 @@ export class UsersService {
       record_id: payment.user_payment_nano_id,
       action: 'UPDATE',
       new_data: payment,
-      changed_by: updater_full_name
+      changed_by: updater_full_name,
     });
 
     return payment;
@@ -519,5 +550,4 @@ export class UsersService {
 
   //   return setting;
   // }
-  
 }

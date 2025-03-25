@@ -1,9 +1,21 @@
-import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { nanoid } from 'nanoid';
 import * as schema from '../database/schema';
 import { and, eq, sql } from 'drizzle-orm';
-import { CreateTenantDto, UpdateTenantDto, TenantSettingsDto, TenantLocationDto, CreateTenantSubscriptionDto, UpdateTenantSubscriptionDto } from './dto/tenant.dto';
+import {
+  CreateTenantDto,
+  UpdateTenantDto,
+  TenantSettingsDto,
+  TenantLocationDto,
+  CreateTenantSubscriptionDto,
+  UpdateTenantSubscriptionDto,
+} from './dto/tenant.dto';
 import { AuditService } from '../common/services/audit.service';
 
 @Injectable()
@@ -11,7 +23,7 @@ export class TenantsService {
   constructor(
     @Inject('DATABASE_CONNECTION')
     private db: NodePgDatabase<typeof schema>,
-    private auditService: AuditService
+    private auditService: AuditService,
   ) {}
 
   private async getNextTenantId(): Promise<number> {
@@ -47,15 +59,15 @@ export class TenantsService {
       const creator = await this.db.query.users.findFirst({
         where: eq(schema.users.user_nano_id, creator_user_nano_id),
         columns: {
-          user_nano_id: true
+          user_nano_id: true,
         },
         with: {
           user_profile: {
             columns: {
-              full_name: true
-            }
-          }
-        }
+              full_name: true,
+            },
+          },
+        },
       });
 
       const result = await this.db.transaction(async (tx) => {
@@ -66,33 +78,32 @@ export class TenantsService {
             ...createTenantDto,
             tenant_nano_id,
             tenant_id: await this.getNextTenantId(),
-            created_by: creator?.user_profile?.full_name || creator_user_nano_id,
-            created_on: new Date()
+            created_by:
+              creator?.user_profile?.full_name || creator_user_nano_id,
+            created_on: new Date(),
           })
           .returning();
 
         if (createTenantDto.tenant_contact) {
-          await tx
-            .insert(schema.tenant_contacts)
-            .values({
-              ...createTenantDto.tenant_contact,
-              tenant_contact_nano_id: nanoid(),
-              tenant_nano_id: tenant.tenant_nano_id,
-              created_by: creator?.user_profile?.full_name || creator_user_nano_id,
-              created_on: new Date()
-            });
+          await tx.insert(schema.tenant_contacts).values({
+            ...createTenantDto.tenant_contact,
+            tenant_contact_nano_id: nanoid(),
+            tenant_nano_id: tenant.tenant_nano_id,
+            created_by:
+              creator?.user_profile?.full_name || creator_user_nano_id,
+            created_on: new Date(),
+          });
         }
 
         if (createTenantDto.tenant_settings) {
-          await tx
-            .insert(schema.tenant_settings)
-            .values({
-              ...createTenantDto.tenant_settings,
-              tenant_nano_id: tenant.tenant_nano_id,
-              tenant_setting_nano_id: nanoid(),
-              created_by: creator?.user_profile?.full_name || creator_user_nano_id,
-              created_on: new Date()
-            });
+          await tx.insert(schema.tenant_settings).values({
+            ...createTenantDto.tenant_settings,
+            tenant_nano_id: tenant.tenant_nano_id,
+            tenant_setting_nano_id: nanoid(),
+            created_by:
+              creator?.user_profile?.full_name || creator_user_nano_id,
+            created_on: new Date(),
+          });
         }
 
         return tenant;
@@ -125,12 +136,9 @@ export class TenantsService {
           tenant_contacts: true,
           tenant_settings: true,
           tenant_locations: true,
-        }
+        },
       }),
-      this.db
-        .select({ count: sql<number>`count(*)` })
-        .from(schema.tenants)
-        
+      this.db.select({ count: sql<number>`count(*)` }).from(schema.tenants),
     ]);
 
     const totalItems = Number(count[0].count);
@@ -175,7 +183,7 @@ export class TenantsService {
         const [tenant] = await tx
           .update(schema.tenants)
           .set({
-            ...tenantData
+            ...tenantData,
           })
           .where(eq(schema.tenants.tenant_nano_id, tenant_nano_id))
           .returning();
@@ -199,7 +207,9 @@ export class TenantsService {
       };
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-      throw new ConflictException('Tenant update failed');
+      throw new ConflictException(
+        'Tenant update failed due to conflicting data',
+      );
     }
   }
 
@@ -236,11 +246,11 @@ export class TenantsService {
 
     const [location] = await this.db
       .insert(schema.tenant_locations)
-      .values({ 
-        ...locationDto, 
+      .values({
+        ...locationDto,
         tenant_nano_id,
         tenant_location_nano_id: nanoid(),
-        created_on: new Date()
+        created_on: new Date(),
       })
       .returning();
 
@@ -258,18 +268,24 @@ export class TenantsService {
     });
   }
 
-  async updateLocation(tenant_nano_id: string, location_nano_id: string, locationDto: TenantLocationDto) {
+  async updateLocation(
+    tenant_nano_id: string,
+    location_nano_id: string,
+    locationDto: TenantLocationDto,
+  ) {
     await this.findOne(tenant_nano_id); // Verify tenant exists
 
     const [location] = await this.db
       .update(schema.tenant_locations)
       .set({
-        ...locationDto
+        ...locationDto,
       })
-      .where(and(
-        eq(schema.tenant_locations.tenant_nano_id, tenant_nano_id),
-        eq(schema.tenant_locations.tenant_location_nano_id, location_nano_id)
-      ))
+      .where(
+        and(
+          eq(schema.tenant_locations.tenant_nano_id, tenant_nano_id),
+          eq(schema.tenant_locations.tenant_location_nano_id, location_nano_id),
+        ),
+      )
       .returning();
 
     if (!location) {
@@ -283,16 +299,21 @@ export class TenantsService {
   }
 
   // Subscription methods
-  async createSubscription(tenant_nano_id: string, dto: CreateTenantSubscriptionDto, creator_full_name: string) {
+  async createSubscription(
+    tenant_nano_id: string,
+    dto: CreateTenantSubscriptionDto,
+    creator_full_name: string,
+  ) {
     const tenant_subscription_nano_id = nanoid();
 
-    const [subscription] = await this.db.insert(schema.tenant_subscriptions)
+    const [subscription] = await this.db
+      .insert(schema.tenant_subscriptions)
       .values({
         tenant_subscription_nano_id,
         tenant_nano_id,
         subscription_name: dto.subscription_name,
         created_by: creator_full_name,
-        created_on: new Date()
+        created_on: new Date(),
       })
       .returning();
 
@@ -301,7 +322,7 @@ export class TenantsService {
       record_id: subscription.tenant_subscription_nano_id,
       action: 'CREATE',
       new_data: subscription,
-      changed_by: creator_full_name
+      changed_by: creator_full_name,
     });
 
     return subscription;
@@ -309,17 +330,27 @@ export class TenantsService {
 
   async getSubscriptions(tenant_nano_id: string) {
     return this.db.query.tenant_subscriptions.findMany({
-      where: eq(schema.tenant_subscriptions.tenant_nano_id, tenant_nano_id)
+      where: eq(schema.tenant_subscriptions.tenant_nano_id, tenant_nano_id),
     });
   }
 
-  async updateSubscription(subscription_nano_id: string, dto: UpdateTenantSubscriptionDto, updater_full_name: string) {
-    const [subscription] = await this.db.update(schema.tenant_subscriptions)
+  async updateSubscription(
+    subscription_nano_id: string,
+    dto: UpdateTenantSubscriptionDto,
+    updater_full_name: string,
+  ) {
+    const [subscription] = await this.db
+      .update(schema.tenant_subscriptions)
       .set({
         ...dto,
-        created_by: updater_full_name
+        created_by: updater_full_name,
       })
-      .where(eq(schema.tenant_subscriptions.tenant_subscription_nano_id, subscription_nano_id))
+      .where(
+        eq(
+          schema.tenant_subscriptions.tenant_subscription_nano_id,
+          subscription_nano_id,
+        ),
+      )
       .returning();
 
     if (!subscription) {
@@ -331,7 +362,7 @@ export class TenantsService {
       record_id: subscription.tenant_subscription_nano_id,
       action: 'UPDATE',
       new_data: subscription,
-      changed_by: updater_full_name
+      changed_by: updater_full_name,
     });
 
     return subscription;

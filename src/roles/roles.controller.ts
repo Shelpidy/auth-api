@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, HttpCode, HttpStatus, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+  Request,
+} from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto, UpdateRoleDto } from './dto/role.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -16,7 +28,9 @@ export class RolesController {
   }
 
   @Get(':role_nano_id')
-  async findOne(@Param('role_nano_id', UUIDValidationPipe) role_nano_id: string) {
+  async findOne(
+    @Param('role_nano_id', UUIDValidationPipe) role_nano_id: string,
+  ) {
     return this.rolesService.findOne(role_nano_id);
   }
 
@@ -31,14 +45,16 @@ export class RolesController {
   @HttpCode(HttpStatus.ACCEPTED)
   async update(
     @Param('role_nano_id', UUIDValidationPipe) role_nano_id: string,
-    @Body() updateRoleDto: UpdateRoleDto
+    @Body() updateRoleDto: UpdateRoleDto,
   ) {
     return this.rolesService.update(role_nano_id, updateRoleDto);
   }
 
   @Delete(':role_nano_id')
   @HttpCode(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
-  async remove(@Param('role_nano_id', UUIDValidationPipe) role_nano_id: string) {
+  async remove(
+    @Param('role_nano_id', UUIDValidationPipe) role_nano_id: string,
+  ) {
     return this.rolesService.remove(role_nano_id);
   }
 }

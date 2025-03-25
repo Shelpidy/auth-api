@@ -40,7 +40,12 @@ export class LoggerMiddleware implements NestMiddleware {
 
   private sanitizeBody(body: any): any {
     if (!body) return body;
-    const sensitiveFields = ['password', 'token', 'authorization', 'credit_card'];
+    const sensitiveFields = [
+      'password',
+      'token',
+      'authorization',
+      'credit_card',
+    ];
     const sanitized = { ...body };
     sensitiveFields.forEach((field) => {
       if (field in sanitized) {

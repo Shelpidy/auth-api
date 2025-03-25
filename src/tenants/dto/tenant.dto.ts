@@ -1,4 +1,11 @@
-import { IsString, IsEmail, IsOptional, IsNumber, ValidateNested, IsNotEmpty } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsOptional,
+  IsNumber,
+  ValidateNested,
+  IsNotEmpty,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class TenantContactDto {

@@ -14,7 +14,7 @@ import { AuthModule } from 'src/auth/auth.module';
       secret: oauthConfig.jwt.secret,
       signOptions: { expiresIn: '336h' },
     }),
-    AuthModule
+    AuthModule,
   ],
   controllers: [UsersController],
   providers: [UsersService, AuditService],

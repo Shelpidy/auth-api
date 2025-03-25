@@ -1,6 +1,24 @@
-import { Controller, Post, Body, Patch, UseGuards, Req, Get, HttpStatus, HttpCode, Request } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Patch,
+  UseGuards,
+  Req,
+  Get,
+  HttpStatus,
+  HttpCode,
+  Request,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignUpDto, SignInDto,  VerifyOtpDto, ResendOtpDto, NewPasswordDto, ForgotPasswordDto } from './dto/auth.dto';
+import {
+  SignUpDto,
+  SignInDto,
+  VerifyOtpDto,
+  ResendOtpDto,
+  NewPasswordDto,
+  ForgotPasswordDto,
+} from './dto/auth.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 // Add interface for OAuth user
@@ -17,7 +35,8 @@ export class AuthController {
   async signUp(@Body() signUpDto: SignUpDto) {
     const user = await this.authService.signUp(signUpDto);
     return {
-      message: 'User registered successfully. A verification code has been sent to your email.',
+      message:
+        'User registered successfully. A verification code has been sent to your email.',
       user,
     };
   }
@@ -75,5 +94,4 @@ export class AuthController {
   async microsoftAuthCallback(@Req() req: OAuthRequest) {
     return this.authService.oauthCallback(req);
   }
-
 }

@@ -10,8 +10,8 @@ export class MailService {
     await this.transporter.sendMail({
       to: email,
       from: process.env.SMTP_USER,
-      subject: "Verify Your Email",
-      html: this.getEmailTemplate("Verify Your Email", otp),
+      subject: 'Verify Your Email',
+      html: this.getEmailTemplate('Verify Your Email', otp),
     });
   }
 
@@ -19,8 +19,8 @@ export class MailService {
     await this.transporter.sendMail({
       to: email,
       from: process.env.SMTP_USER,
-      subject: "Password Reset OTP",
-      html: this.getEmailTemplate("Password Reset OTP", otp),
+      subject: 'Password Reset OTP',
+      html: this.getEmailTemplate('Password Reset OTP', otp),
     });
   }
 

@@ -1,21 +1,22 @@
-import { IsEnum } from 'class-validator';
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsEnum } from 'class-validator';
 
 export enum RoleName {
   SUPER_ADMIN = 'super-admin',
   ADMIN = 'admin',
   MANAGER = 'manager',
-  USER = 'user'
+  AUTHENTICATED = 'authenticated',
+  EDITOR = 'editor',
+  ANONYMOUS = 'anonymous',
 }
 
 export class CreateRoleDto {
-  @IsString()
   @IsNotEmpty()
-  name: string;
+  @IsEnum(RoleName)
+  name: RoleName;
 }
 
 export class UpdateRoleDto {
-  @IsString()
-  @IsOptional()
-  name: string;
+  @IsNotEmpty()
+  @IsEnum(RoleName)
+  name: RoleName;
 }

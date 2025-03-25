@@ -17,7 +17,7 @@ type TokenPayload = {
 };
 
 @Injectable()
-export class AdminGuard implements CanActivate {
+export class ManagerGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     @Inject('DATABASE_CONNECTION')
@@ -49,14 +49,17 @@ export class AdminGuard implements CanActivate {
         throw new UnauthorizedException('Invalid token');
       }
 
+      const isUserManager = user.user_roles.some((ur) =>
+        ur?.role?.name?.includes('manager'),
+      );
+
       const isUserAdmin = user.user_roles.some((ur) =>
         ur?.role?.name?.includes('admin'),
       );
 
-      if (!isUserAdmin) {
-        throw new ForbiddenException('Forbidden: Admins only');
+      if (!isUserManager || !isUserAdmin) {
+        throw new ForbiddenException('Forbidden: Managers or Admins only');
       }
-
       request.user = decoded;
       return true;
     } catch (error) {

@@ -1,8 +1,21 @@
-import { Injectable, Inject, UnauthorizedException, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  UnauthorizedException,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../database/schema';
 import { eq } from 'drizzle-orm';
-import { SignUpDto, SignInDto, VerifyOtpDto, ResendOtpDto, NewPasswordDto, ForgotPasswordDto } from './dto/auth.dto';
+import {
+  SignUpDto,
+  SignInDto,
+  VerifyOtpDto,
+  ResendOtpDto,
+  NewPasswordDto,
+  ForgotPasswordDto,
+} from './dto/auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { comparePassword, hashPassword } from '../utils/auth';
 import { MailService } from '../mail/mail.service';
@@ -22,12 +35,19 @@ export class AuthService {
   }
 
   async signUp(signUpDto: SignUpDto) {
-    const { email, username, password, user_profile, user_location, tenant_nano_id } = signUpDto;
+    const {
+      email,
+      username,
+      password,
+      user_profile,
+      user_location,
+      tenant_nano_id,
+    } = signUpDto;
 
     const result = await this.db.transaction(async (tx) => {
       const user_nano_id = nanoid();
       const otp = this.generateOTP();
-      
+
       const [user] = await tx
         .insert(schema.users)
         .values({
@@ -38,7 +58,8 @@ export class AuthService {
           tenant_nano_id,
           is_verified: false,
           created_by: user_profile.full_name,
-          created_on: new Date()
+          created_on: new Date(),
+          // ...other fields will use defaults or be null...
         })
         .returning();
 
@@ -47,7 +68,7 @@ export class AuthService {
         user_profile_nano_id: nanoid(),
         user_nano_id: user_nano_id,
         created_by: user_profile.full_name,
-        created_on: new Date()
+        created_on: new Date(),
       });
 
       await tx.insert(schema.user_auths).values({
@@ -56,7 +77,7 @@ export class AuthService {
         otp: otp,
         otp_expiry: new Date(Date.now() + 600000),
         created_by: user_profile.full_name,
-        created_on: new Date()
+        created_on: new Date(),
       });
 
       if (user_location) {
@@ -65,25 +86,59 @@ export class AuthService {
           user_location_nano_id: nanoid(),
           user_nano_id: user_nano_id,
           created_by: user_profile.full_name,
-          created_on: new Date()
+          created_on: new Date(),
         });
       }
 
+      // Assign default role
+      const defaultRole = await tx.query.roles.findFirst({
+        where: eq(schema.roles.name, 'authenticated'),
+      });
+
+      let userRole: any = null;
+      if (defaultRole) {
+        [userRole] = await tx
+          .insert(schema.user_roles)
+          .values({
+            user_nano_id: user.user_nano_id,
+            role_nano_id: defaultRole.role_nano_id,
+          })
+          .returning();
+      }
       return { user, otp };
     });
 
     await this.mailService.sendVerificationEmail(email, result.otp);
 
-    const { password: _, ...safeUser } = result.user;
+    // Re-query full user with related profile and locations
+    const completeUser = await this.db.query.users.findFirst({
+      where: eq(schema.users.user_nano_id, result.user.user_nano_id),
+      with: {
+        user_profile: true,
+        user_location: true,
+        user_roles: {
+          with: {
+            role: true,
+          },
+        },
+      },
+    });
+
+    // Remove password before returning
+    // @ts-ignore
+    const { password: _, ...safeUser } = completeUser;
     return safeUser;
   }
 
   async signIn(signInDto: SignInDto) {
     const { email, password } = signInDto;
 
-    const user = await this.db.query.users.findFirst({
+    let user = await this.db.query.users.findFirst({
       where: eq(schema.users.email, email),
       with: {
+        user_profile: true,
+        user_location: true,
+        tenant: true,
         user_roles: {
           with: {
             role: true,
@@ -106,16 +161,24 @@ export class AuthService {
       roles: user.user_roles.map((ur) => ur.role?.name),
     });
 
-    // Update last login
-    const [auth] = await this.db.update(schema.user_auths)
+    // Update last login details
+    const [auth] = await this.db
+      .update(schema.user_auths)
       .set({ last_login_at: new Date() })
       .where(eq(schema.user_auths.user_nano_id, user.user_nano_id))
       .returning();
 
+    // Remove sensitive fields
     const { password: _, ...userWithoutPassword } = user;
     return {
       message: 'Sign in successful',
-      user: { ...userWithoutPassword, auth: { last_login_at: auth.last_login_at, last_login_ip: auth.last_login_ip } },
+      user: {
+        ...userWithoutPassword,
+        auth: {
+          last_login_at: auth.last_login_at,
+          last_login_ip: auth.last_login_ip,
+        },
+      },
       token,
     };
   }
@@ -135,16 +198,23 @@ export class AuthService {
       throw new UnauthorizedException('Email is already verified');
     }
 
-    if (!user.user_auth?.otp || user.user_auth.otp !== otp || !user.user_auth.otp_expiry || user.user_auth.otp_expiry < new Date()) {
+    if (
+      !user.user_auth?.otp ||
+      user.user_auth.otp !== otp ||
+      !user.user_auth.otp_expiry ||
+      user.user_auth.otp_expiry < new Date()
+    ) {
       throw new UnauthorizedException('Invalid or expired verification code');
     }
 
     await this.db.transaction(async (tx) => {
-      await tx.update(schema.users)
+      await tx
+        .update(schema.users)
         .set({ is_verified: true })
         .where(eq(schema.users.user_nano_id, user.user_nano_id));
 
-      await tx.update(schema.user_auths)
+      await tx
+        .update(schema.user_auths)
         .set({ otp: null, otp_expiry: null })
         .where(eq(schema.user_auths.user_nano_id, user.user_nano_id));
     });
@@ -170,7 +240,8 @@ export class AuthService {
     const otp = this.generateOTP();
     const otpExpiry = new Date(Date.now() + 600000);
 
-    await this.db.update(schema.user_auths)
+    await this.db
+      .update(schema.user_auths)
       .set({ otp, otp_expiry: otpExpiry })
       .where(eq(schema.user_auths.user_nano_id, user.user_nano_id));
 
@@ -192,7 +263,8 @@ export class AuthService {
     const otp = this.generateOTP();
     const otpExpiry = new Date(Date.now() + 600000);
 
-    await this.db.update(schema.user_auths)
+    await this.db
+      .update(schema.user_auths)
       .set({ otp, otp_expiry: otpExpiry })
       .where(eq(schema.user_auths.user_nano_id, user.user_nano_id));
 
@@ -203,22 +275,30 @@ export class AuthService {
 
   async resetPassword(newPasswordDto: NewPasswordDto) {
     const { email, otp, new_password } = newPasswordDto;
-    
+
     const user = await this.db.query.users.findFirst({
       where: eq(schema.users.email, email),
       with: { user_auth: true },
     });
 
-    if (!user || !user.user_auth?.otp || user.user_auth.otp !== otp || !user.user_auth.otp_expiry || user.user_auth.otp_expiry < new Date()) {
+    if (
+      !user ||
+      !user.user_auth?.otp ||
+      user.user_auth.otp !== otp ||
+      !user.user_auth.otp_expiry ||
+      user.user_auth.otp_expiry < new Date()
+    ) {
       throw new UnauthorizedException('Invalid or expired OTP');
     }
 
     await this.db.transaction(async (tx) => {
-      await tx.update(schema.user_auths)
+      await tx
+        .update(schema.user_auths)
         .set({ otp: null, otp_expiry: null })
         .where(eq(schema.user_auths.user_nano_id, user.user_nano_id));
 
-      await tx.update(schema.users)
+      await tx
+        .update(schema.users)
         .set({ password: await hashPassword(new_password) })
         .where(eq(schema.users.user_nano_id, user.user_nano_id));
     });
@@ -238,7 +318,8 @@ export class AuthService {
     });
 
     // Update last login
-    await this.db.update(schema.user_auths)
+    await this.db
+      .update(schema.user_auths)
       .set({ last_login_at: new Date() })
       .where(eq(schema.user_auths.user_nano_id, user.user_nano_id));
 

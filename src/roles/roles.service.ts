@@ -1,4 +1,9 @@
-import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../database/schema';
 import { eq } from 'drizzle-orm';
@@ -46,9 +51,9 @@ export class RolesService {
       })
       .returning();
 
-    return { 
+    return {
       message: 'Role created successfully',
-      role 
+      role,
     };
   }
 
@@ -71,9 +76,9 @@ export class RolesService {
       throw new NotFoundException('Role not found');
     }
 
-    return { 
+    return {
       message: 'Role updated successfully',
-      role 
+      role,
     };
   }
 

@@ -11,6 +11,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
 // import './config/passport.config';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AdminGuard } from './guards/admin.guard';
+import { ManagerGuard } from './guards/manager.gaurd';
 
 @Module({
   imports: [
@@ -28,8 +29,9 @@ import { AdminGuard } from './guards/admin.guard';
     GoogleStrategy,
     // MicrosoftStrategy,
     JwtAuthGuard,
-    AdminGuard
+    AdminGuard,
+    ManagerGuard,
   ],
-  exports: [AuthService, JwtAuthGuard, AdminGuard],
+  exports: [AuthService, JwtAuthGuard, AdminGuard, ManagerGuard],
 })
 export class AuthModule {}

@@ -30,7 +30,7 @@ export class AuditService {
       new_data: params.new_data,
       changed_by: params.changed_by,
       changeby_login_ip: params.changeby_login_ip,
-      changed_on: new Date()
+      changed_on: new Date(),
     });
   }
 }

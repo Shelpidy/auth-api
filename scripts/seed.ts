@@ -65,7 +65,7 @@ async function main() {
     await db.insert(schema.roles)
       .values([
         { role_nano_id: adminRoleNanoId, name: 'admin' },
-        { role_nano_id: userRoleNanoId, name: 'user' },
+        { role_nano_id: userRoleNanoId, name: 'authenticated' },
       ]);
 
     // Create admin user

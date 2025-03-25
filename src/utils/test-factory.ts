@@ -10,13 +10,15 @@ export const createTestApp = async (): Promise<INestApplication> => {
 
   const app = moduleFixture.createNestApplication();
   app.useLogger(new CustomLogger());
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-    whitelist: true,
-    forbidNonWhitelisted: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
   app.setGlobalPrefix('api');
-  
+
   await app.init();
   return app;
 };

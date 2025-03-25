@@ -3,7 +3,13 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-google-oauth20';
 import { oauthConfig } from '../../config/oauth.config';
 import { db } from '../../database/client';
-import { users, user_profiles, user_auths, user_roles, roles } from '../../database/schema';
+import {
+  users,
+  user_profiles,
+  user_auths,
+  user_roles,
+  roles,
+} from '../../database/schema';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 
@@ -18,10 +24,14 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     });
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: any): Promise<any> {
+  async validate(
+    accessToken: string,
+    refreshToken: string,
+    profile: any,
+  ): Promise<any> {
     try {
       let user = await db.query.users.findFirst({
-        where: eq(users.email, profile.emails?.[0]?.value || ""),
+        where: eq(users.email, profile.emails?.[0]?.value || ''),
         with: {
           user_roles: {
             with: {
@@ -35,17 +45,17 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
       if (!user) {
         // Create new user with transaction
-       user = await db.transaction(async (tx) => {
+        user = await db.transaction(async (tx) => {
           // Create base user
           const [newUser] = await tx
             .insert(users)
             .values({
-              user_nano_id:nanoid(),
-              email: profile.emails?.[0]?.value || "",
+              user_nano_id: nanoid(),
+              email: profile.emails?.[0]?.value || '',
               username:
                 profile.username ||
-                profile.displayName.toLowerCase().replace(/\s+/g, ""),
-              password: "", // OAuth users don't need password
+                profile.displayName.toLowerCase().replace(/\s+/g, ''),
+              password: '', // OAuth users don't need password
               photo: profile.photos?.[0]?.value,
               is_verified: true, // OAuth users are pre-verified
             })
@@ -57,8 +67,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
             .values({
               user_nano_id: newUser.user_nano_id,
               full_name: profile.displayName,
-              first_name: profile.name?.givenName || "",
-              last_name: profile.name?.familyName || "",
+              first_name: profile.name?.givenName || '',
+              last_name: profile.name?.familyName || '',
               middle_name: profile.name?.middleName,
             })
             .returning();
@@ -74,10 +84,10 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
           // Assign default role
           const defaultRole = await tx.query.roles.findFirst({
-            where: eq(roles.name, "user"),
+            where: eq(roles.name, 'authenticated'),
           });
 
-          let userRole:any = null;
+          let userRole: any = null;
           if (defaultRole) {
             [userRole] = await tx
               .insert(user_roles)
@@ -88,10 +98,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
               .returning();
           }
 
-
-      // Fetch the complete user data after creation
-         let newuser = await db.query.users.findFirst({
-            where: eq(users.user_nano_id, user?.user_nano_id || ""),
+          // Fetch the complete user data after creation
+          let newuser = await db.query.users.findFirst({
+            where: eq(users.user_nano_id, user?.user_nano_id || ''),
             with: {
               user_roles: {
                 with: {
@@ -109,13 +118,13 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
       // Clean up sensitive data and structure the response
       // @ts-ignore
-      const { password:_, ...userWithoutPassword } = user;
+      const { password: _, ...userWithoutPassword } = user;
       return {
         ...userWithoutPassword,
         accessToken,
       };
     } catch (error) {
-      console.error("OAuth Error:", error);
+      console.error('OAuth Error:', error);
       throw error;
     }
   }

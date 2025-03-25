@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException, ExecutionContext, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ExecutionContext,
+  Inject,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -32,13 +37,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       const decoded = this.jwtService.verify(jwtToken) as TokenPayload;
       const user = await this.db.query.users.findFirst({
         where: eq(schema.users.user_nano_id, decoded.user_nano_id),
-        with:{
-          user_roles:{
-            with:{
-              role:true,
+        with: {
+          user_roles: {
+            with: {
+              role: true,
             },
-          }
-        }
+          },
+        },
       });
 
       if (!user) {
