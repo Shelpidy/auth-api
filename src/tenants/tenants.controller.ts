@@ -25,7 +25,9 @@ import {
 } from './dto/tenant.dto';
 import { UUIDValidationPipe } from '../common/pipes/uuid-validation.pipe';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBody } from '@nestjs/swagger';
 
+@ApiTags('Tenants')
 @Controller('tenants')
 @UseGuards(JwtAuthGuard, AdminGuard)
 export class TenantsController {
@@ -34,6 +36,8 @@ export class TenantsController {
   @Post()
   @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a new tenant', description: 'Creates a tenant record and returns the new tenant.' })
+  @ApiResponse({ status: 201, description: 'Tenant created successfully.' })
   async create(
     @Body() createTenantDto: CreateTenantDto,
     @CurrentUser() user: any,
@@ -44,6 +48,9 @@ export class TenantsController {
   @Get()
   @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all tenants with pagination', description: 'Returns paginated tenants with metadata.' })
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Records per page (default: 10)' })
   async findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
@@ -68,10 +75,10 @@ export class TenantsController {
     return this.tenantsService.update(tenant_nano_id, updateTenantDto);
   }
 
-  @Delete(':tenantId')
+  @Delete(':tenant_nano_id')
   @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.NON_AUTHORITATIVE_INFORMATION) // 203
-  async remove(@Param('tenantId', UUIDValidationPipe) tenantId: string) {
+  async remove(@Param('tenant_nano_id', UUIDValidationPipe) tenantId: string) {
     return this.tenantsService.remove(tenantId);
   }
 
@@ -119,6 +126,8 @@ export class TenantsController {
   // Subscription endpoints
   @Post(':tenant_nano_id/subscriptions')
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a subscription for a tenant', description: 'Creates a new subscription record for the specified tenant.' })
+  @ApiBody({ type: CreateTenantSubscriptionDto, description: 'Subscription details' })
   async createSubscription(
     @Param('tenant_nano_id', UUIDValidationPipe) tenant_nano_id: string,
     @Body() createDto: CreateTenantSubscriptionDto,

@@ -1,4 +1,4 @@
-# auth-api
+# USERS AND TENANTS MANAGEMENT AUTH API
 
 A multi-tenant authentication and user management API with role-based access control and OAuth2 integration. This API uses NestJS with PostgreSQL (via Drizzle ORM), JWT-based authentication, and email verification. All keys and endpoints follow snake-case naming conventions throughout.
 
@@ -32,6 +32,7 @@ A multi-tenant authentication and user management API with role-based access con
 - [Testing](#testing)
 
 ## Project Setup
+
 ### Available Scripts
 
 ```bash
@@ -85,9 +86,9 @@ cd auth-api
   touch .env
   ```
 
-  ## Environment Variables
+## Environment Variables
 
-  Add in the .env file with the envs below - Use actual values,these are dummy values.
+Add in the .env file with the envs below - Use actual values,these are dummy values.
 
   ```.env
   # Server
@@ -611,9 +612,9 @@ All endpoints are prefixed with `/api` as configured in `main.ts`.
   *Request:*  
   No request payload (handled by Passport).  
   
-  *Success Response (302):*  
+  <!-- *Success Response (302):*  
   Redirects to the front-end:  
-  `http://localhost:3000/signin?token={token}`  
+  `http://localhost:3000/signin?token={token}`   -->
   
   *Error Response (401 Unauthorized):*  
   ```json
@@ -646,9 +647,9 @@ All endpoints are prefixed with `/api` as configured in `main.ts`.
   *Request:*  
   No request payload (handled by Passport).  
   
-  *Success Response (302):*  
+  <!-- *Success Response (302):*  
   Redirects to the front-end:  
-  `http://localhost:3000/signin?token={token}`  
+  `http://localhost:3000/signin?token={token}`   -->
   
   *Error Response (401 Unauthorized):*  
   ```json
@@ -1228,7 +1229,7 @@ export default function AuthCallback() {
     }
     ```
 
-- **DELETE /tenants/:tenantId**  
+- **DELETE /tenants/:tenant_nano_id**  
   Deletes the specified tenant.
   
   *Success Response (203):*  
@@ -2446,21 +2447,45 @@ export default function AuthCallback() {
   }
   ```
 
-## Logging & Error Handling
+## Logging Configuration
 
-- All requests are logged in JSON format with properties such as `timestamp`, `method`, `url`, `status`, `duration`, `ip`, and `user_agent`.
-- Error responses follow the structure:
-  ```json
-  {
-    "statusCode": 400,
-    "message": ["error message 1", "error message 2"],
-    "error": "bad request"
-  }
-  ```
+### Logger Setup
 
-Common error statuses include 400 (bad_request), 401 (unauthorized), 403 (forbidden), 404 (not_found), and 500 (internal_server_error).
+The application uses Winston for structured JSON logging with daily rotation. Logs are stored in the `/logs` directory.
 
+### Log Format
 
----
+```typescript
+interface LogEntry {
+  timestamp: string; // ISO datetime
+  method: string; // HTTP method
+  url: string; // Request URL
+  status: number; // HTTP status code
+  duration: string; // Request duration (ms)
+  userAgent: string; // Client user agent
+  ip: string; // Client IP
+  query: object; // Query parameters
+  body?: object; // Request body (if present)
+  level: string; // Log level (info/warn/error)
+  message: string; // Log message
+}
+```
 
-This completes the API documentation for the auth-api project with fully described endpoints, snake-case request and response bodies, and complete instructions for setup, testing, and deployment.
+```bash
+/logs/
+  ├── application-2025-03-11.log     # Current day's logs
+  ├── application-2025-03-10.log.gz  # Previous day (compressed)
+  └── error-2025-03-11.log          # Error-only logs
+```
+
+### Content of log file
+
+Content of --application-2025-03-11.log--
+
+```json
+{"duration":"952ms","ip":"::1","level":"info","message":"Request processed","method":"GET","query":{},"status":200,"timestamp":"2025-03-11 08:32:49","url":"/tenants","userAgent":"PostmanRuntime/7.43.0"}
+
+{"duration":"239ms","ip":"::1","level":"info","message":"Request processed","method":"GET","query":{"limit":"2"},"status":200,"timestamp":"2025-03-11 08:33:12","url":"/users?limit=2","userAgent":"PostmanRuntime/7.43.0"}
+
+{"duration":"73ms","ip":"::1","level":"info","message":"Request processed","method":"GET","query":{},"status":200,"timestamp":"2025-03-11 08:33:39","url":"/users","userAgent":"PostmanRuntime/7.43.0"}
+```

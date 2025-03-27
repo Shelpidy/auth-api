@@ -12,6 +12,8 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 import { ManagerGuard } from './guards/manager.gaurd';
+import { TenantsService } from 'src/tenants/tenants.service';
+import { TenantsModule } from 'src/tenants/tenants.module';
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { ManagerGuard } from './guards/manager.gaurd';
       signOptions: { expiresIn: '336h' },
     }),
     MailModule,
+    TenantsModule
   ],
   controllers: [AuthController],
   providers: [

@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../database/schema';
@@ -20,6 +21,7 @@ import { JwtService } from '@nestjs/jwt';
 import { comparePassword, hashPassword } from '../utils/auth';
 import { MailService } from '../mail/mail.service';
 import { nanoid } from 'nanoid';
+import { TenantsService } from '../tenants/tenants.service';
 
 @Injectable()
 export class AuthService {
@@ -28,6 +30,7 @@ export class AuthService {
     private db: NodePgDatabase<typeof schema>,
     private jwtService: JwtService,
     private mailService: MailService,
+    private readonly tenantsService: TenantsService,
   ) {}
 
   private generateOTP(): string {
@@ -44,6 +47,16 @@ export class AuthService {
       tenant_nano_id,
     } = signUpDto;
 
+    // Validate tenant exists if tenant_nano_id is provided
+    if (tenant_nano_id) {
+      const tenant = await this.tenantsService.findOne(tenant_nano_id);
+      if (!tenant) {
+        throw new NotFoundException(
+          `Tenant with nano_id ${tenant_nano_id} does not exist.`,
+        );
+      }
+    }
+
     const result = await this.db.transaction(async (tx) => {
       const user_nano_id = nanoid();
       const otp = this.generateOTP();
@@ -55,7 +68,7 @@ export class AuthService {
           username,
           email,
           password: await hashPassword(password),
-          tenant_nano_id,
+          tenant_nano_id: tenant_nano_id ? tenant_nano_id : null,
           is_verified: false,
           created_by: user_profile.full_name,
           created_on: new Date(),

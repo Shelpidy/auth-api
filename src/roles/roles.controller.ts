@@ -16,18 +16,23 @@ import { CreateRoleDto, UpdateRoleDto } from './dto/role.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { UUIDValidationPipe } from '../common/pipes/uuid-validation.pipe';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('Roles')
 @Controller('roles')
 @UseGuards(JwtAuthGuard, AdminGuard)
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Get()
+  @ApiOperation({ summary: 'Get all roles', description: 'Retrieves and returns a list of all roles.' })
+  @ApiResponse({ status: 200, description: 'List of roles returned successfully.' })
   async findAll() {
     return this.rolesService.findAll();
   }
 
   @Get(':role_nano_id')
+  @ApiOperation({ summary: 'Get role by ID', description: 'Retrieves a role by its nano ID.' })
   async findOne(
     @Param('role_nano_id', UUIDValidationPipe) role_nano_id: string,
   ) {

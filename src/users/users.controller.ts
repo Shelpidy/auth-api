@@ -4,7 +4,9 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserUpdateDto, AssignRoleDto, AssignTenantDto, UserLocationDto, UsersByRoleDto, CreateUserPaymentDto, UpdateUserPaymentDto} from './dto/user.dto';
 import { UUIDValidationPipe } from '../common/pipes/uuid-validation.pipe';
 import { AdminGuard } from '../auth/guards/admin.guard';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 
+@ApiTags('Users')
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
@@ -13,6 +15,10 @@ export class UsersController {
   @Get()
   @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all users with pagination', description: 'Returns a paginated list of users with metadata.' })
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number of the paginated result (default: 1)' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Number of records per page (default: 10)' })
+  @ApiResponse({ status: 200, description: 'Successfully retrieved users along with pagination metadata.' })
   async findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
     return this.usersService.findAll(page, limit);
   }
@@ -20,6 +26,11 @@ export class UsersController {
   @Get('search')
   @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Search users by query', description: 'Searches users by username or email using ILIKE keyword.' })
+  @ApiQuery({ name: 'query', required: true, type: String, description: 'Search term' })
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Records per page (default: 10)' })
+  @ApiResponse({ status: 200, description: 'Successfully retrieved search results.' })
   async searchUsers(
     @Query('query') query: string,
     @Query('page') page: number = 1,
