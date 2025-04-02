@@ -7,7 +7,6 @@ import {
   date,
   doublePrecision,
   jsonb,
-  primaryKey,
   varchar,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
@@ -38,8 +37,8 @@ export const tenants = pgTable('tenants', {
   date_founded: date('date_founded'),
   description: text('description'),
   account_owner_name: text('account_owner_name').notNull(),
-  account_owner_email: text('account_owner_email').notNull().unique(),
-  account_owner_phone: text('account_owner_phone').notNull().unique(),
+  account_owner_email: text('account_owner_email').notNull(),
+  account_owner_phone: text('account_owner_phone').notNull(),
   subscription_name: text('subscription_name').notNull(),
   status: text('status').notNull().default('active'),
   created_by: text('created_by').notNull(),
@@ -194,7 +193,7 @@ export const user_profiles = pgTable('user_profiles', {
   last_name: text('last_name').notNull(),
   name_suffix: text('name_suffix'),
   primary_phone: text('primary_phone').unique(),
-  secondary_phone: text('secondary_phone').unique(),
+  secondary_phone: text('secondary_phone'),
   secondary_email: text('secondary_email'),
   gender: text('gender'),
   marital_status: text('marital_status'),

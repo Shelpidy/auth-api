@@ -116,12 +116,12 @@ export class UserLocationDto {
 }
 
 export class SignUpDto {
-  @ApiProperty({ description: 'Username for the user', example: 'testuser' })
+  @ApiProperty({ description: 'Username for the user', example: 'teaxmarkit' })
   @IsString()
   @MinLength(3)
   username: string;
 
-  @ApiProperty({ description: 'User email address', example: 'test@example.com' })
+  @ApiProperty({ description: 'User email address', example: 'teaxmarkit@gmail.com' })
   @IsEmail()
   email: string;
 
@@ -153,7 +153,7 @@ export class SignUpDto {
 }
 
 export class SignInDto {
-  @ApiProperty({ description: 'User email address', example: 'test@example.com' })
+  @ApiProperty({ description: 'User email address', example: 'teaxmarkit@gmail.com' })
   @IsEmail({}, { message: 'Please provide a valid email address' })
   email: string;
 
@@ -164,7 +164,7 @@ export class SignInDto {
 }
 
 export class NewPasswordDto {
-  @ApiProperty({ description: 'User email address', example: 'test@example.com' })
+  @ApiProperty({ description: 'User email address', example: 'teaxmarkit@gmail.com' })
   @IsEmail()
   email: string;
 
@@ -180,7 +180,7 @@ export class NewPasswordDto {
 }
 
 export class VerifyOtpDto {
-  @ApiProperty({ description: 'User email address', example: 'test@example.com' })
+  @ApiProperty({ description: 'User email address', example: 'teaxmarkit@gmail.com' })
   @IsEmail()
   email: string;
 
@@ -191,13 +191,13 @@ export class VerifyOtpDto {
 }
 
 export class ResendOtpDto {
-  @ApiProperty({ description: 'User email address', example: 'test@example.com' })
+  @ApiProperty({ description: 'User email address', example: 'teaxmarkit@gmail.com' })
   @IsEmail()
   email: string;
 }
 
 export class ForgotPasswordDto {
-  @ApiProperty({ description: 'User email address', example: 'test@example.com' })
+  @ApiProperty({ description: 'User email address', example: 'teaxmarkit@gmail.com' })
   @IsEmail()
   email: string;
 }

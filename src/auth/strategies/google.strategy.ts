@@ -20,7 +20,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       clientID: oauthConfig.google.clientID,
       clientSecret: oauthConfig.google.clientSecret,
       callbackURL: oauthConfig.google.callbackURL,
-      scope: ['email', 'profile'],
+      scope: ['email', 'profile',    
+        'openid'],
     });
   }
 
@@ -30,6 +31,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     profile: any,
   ): Promise<any> {
     try {
+      // console.log('Google Profile:', profile);
       let user = await db.query.users.findFirst({
         where: eq(users.email, profile.emails?.[0]?.value || ''),
         with: {
@@ -52,6 +54,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
             .values({
               user_nano_id: nanoid(),
               email: profile.emails?.[0]?.value || '',
+              display_name: profile.displayName,
               username:
                 profile.username ||
                 profile.displayName.toLowerCase().replace(/\s+/g, ''),
@@ -99,7 +102,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
           }
 
           // Fetch the complete user data after creation
-          let newuser = await db.query.users.findFirst({
+          let newuser = await tx.query.users.findFirst({
             where: eq(users.user_nano_id, user?.user_nano_id || ''),
             with: {
               user_roles: {
@@ -111,17 +114,17 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
               user_auth: true,
             },
           });
-
+          console.log({user:newUser})
           return newuser;
         });
       }
 
       // Clean up sensitive data and structure the response
       // @ts-ignore
-      const { password: _, ...userWithoutPassword } = user;
       return {
-        ...userWithoutPassword,
+        ...user,
         accessToken,
+        refreshToken
       };
     } catch (error) {
       console.error('OAuth Error:', error);

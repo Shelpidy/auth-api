@@ -28,14 +28,6 @@ export class AuthController {
     };
   }
 
-  @Post('signin')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'User sign in', description: 'Authenticates a user and returns a JWT token.' })
-  @ApiResponse({ status: 200, description: 'Sign in successful, token returned.' })
-  async signIn(@Body() signInDto: SignInDto) {
-    return this.authService.signIn(signInDto);
-  }
-
   @Post('verify-email')
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({ summary: 'Verify user email', description: 'Verifies the user email based on the OTP provided.' })
@@ -48,6 +40,14 @@ export class AuthController {
   @HttpCode(HttpStatus.ACCEPTED)
   async resendOtp(@Body() resendOtpDto: ResendOtpDto) {
     return this.authService.resendOtp(resendOtpDto);
+  }
+
+  @Post('signin')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'User sign in', description: 'Authenticates a user and returns a JWT token.' })
+  @ApiResponse({ status: 200, description: 'Sign in successful, token returned.' })
+  async signIn(@Body() signInDto: SignInDto) {
+    return this.authService.signIn(signInDto);
   }
 
   @Post('forget-password')

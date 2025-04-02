@@ -47,6 +47,32 @@ export class AuthService {
       tenant_nano_id,
     } = signUpDto;
 
+    // Check if email already exists
+    const existingEmailUser = await this.db.query.users.findFirst({
+      where: eq(schema.users.email, email),
+    });
+    if (existingEmailUser) {
+      throw new ConflictException('Email already exists');
+    }
+
+    // Check if username already exists
+    const existingUsernameUser = await this.db.query.users.findFirst({
+      where: eq(schema.users.username, username),
+    });
+    if (existingUsernameUser) {
+      throw new ConflictException('Username already exists');
+    }
+
+    // Check if primary phone number already exists (if provided)
+    if (user_profile.primary_phone) {
+      const existingPhoneUser = await this.db.query.user_profiles.findFirst({
+        where: eq(schema.user_profiles.primary_phone, user_profile.primary_phone),
+      });
+      if (existingPhoneUser) {
+        throw new ConflictException('Primary phone number already exists');
+      }
+    }
+
     // Validate tenant exists if tenant_nano_id is provided
     if (tenant_nano_id) {
       const tenant = await this.tenantsService.findOne(tenant_nano_id);
