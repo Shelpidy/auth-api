@@ -5,168 +5,250 @@ import {
   MinLength,
   IsOptional,
   IsDateString,
-  Matches,
+  IsBoolean,
   ValidateNested,
-  IsNumber,
-  IsNotEmpty,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UserProfileDto {
-  @ApiProperty({ description: 'Prefix of the user name', example: 'Mr.' })
+export class UserDataDto {
+  @ApiProperty({ example: 'Mr.' })
   @IsOptional()
   @IsString()
   name_prefix?: string;
 
-  @ApiProperty({ description: 'Full name', example: 'John Doe' })
+  @ApiProperty({ example: 'John Doe' })
   @IsString()
   full_name: string;
 
-  @ApiProperty({ description: 'First name', example: 'John' })
+  @ApiProperty({ example: 'John' })
   @IsString()
   first_name: string;
 
-  @ApiProperty({ description: 'Middle name', example: 'Michael', required: false })
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   middle_name?: string;
 
-  @ApiProperty({ description: 'Last name', example: 'Doe' })
+  @ApiProperty({ example: 'Doe' })
   @IsString()
   last_name: string;
 
-  @ApiProperty({ description: 'Suffix of the user name', example: 'Jr.', required: false })
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   name_suffix?: string;
 
-  @ApiProperty({ description: 'Primary phone number', example: '+1234567890', required: false })
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  primary_phone?: string;
+  national_id_number?: string;
 
-  @ApiProperty({ description: 'Secondary phone number', example: '+0987654321', required: false })
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  other_government_id_numer?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  uploaded_id_photo?: string;
+
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   secondary_phone?: string;
 
-  @ApiProperty({ description: 'Secondary email address', example: 'secondary@example.com', required: false })
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   secondary_email?: string;
 
-  @ApiProperty({ description: 'Gender', example: 'Male', required: false })
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  gender?: string;
+  demographic_gender?: string;
 
-  @ApiProperty({ description: 'Marital status', example: 'Single', required: false })
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  marital_status?: string;
+  demographic_marital_status?: string;
 
-  @ApiProperty({ description: 'Date of birth', example: '1990-01-01', required: false })
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsDateString()
-  date_of_birth?: string;
-}
+  demographic_date_of_birth?: string;
 
-export class UserLocationDto {
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  demographic_country_of_birth?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  demographic_nationality?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  demographic_is_disabled?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  demographic_disability_status?: string;
+
+  @ApiProperty({ description: 'Address name', example: 'Primary Address' })
+  @IsString()
+  address_name: string;
+
+  @ApiProperty({ description: 'Address type', example: 'Home' })
+  @IsString()
+  address_type: string;
+
+  @ApiProperty({ description: 'Country', example: 'Sierra Leone' })
+  @IsString()
+  address_country: string;
+
+  @ApiProperty({ description: 'City', example: 'Freetown' })
+  @IsString()
+  address_city: string;
+
   @ApiProperty({ description: 'Address line 1', example: '123 Main St' })
   @IsString()
-  address_line1: string;
+  address_address_line1: string;
 
-  @ApiProperty({ description: 'Address line 2', example: 'Apt 4B', required: false })
+  @ApiProperty({ description: 'Address line 2', required: false })
   @IsOptional()
   @IsString()
-  address_line2?: string;
+  address_address_line2?: string;
 
-  @ApiProperty({ description: 'City', example: 'New York' })
-  @IsString()
-  city: string;
-
-  @ApiProperty({ description: 'State', example: 'NY', required: false })
+  @ApiProperty({ description: 'State/Province', required: false })
   @IsOptional()
   @IsString()
-  state?: string;
+  address_state?: string;
 
-  @ApiProperty({ description: 'Province', example: 'Ontario', required: false })
+  @ApiProperty({ description: 'Region', required: false })
   @IsOptional()
   @IsString()
-  province?: string;
+  address_region?: string;
 
-  @ApiProperty({ description: 'Postal code', example: '10001', required: false })
+  @ApiProperty({ description: 'District', required: false })
   @IsOptional()
   @IsString()
-  postal_code?: string;
+  address_district?: string;
 
-  @ApiProperty({ description: 'Country', example: 'USA' })
+  @ApiProperty({ description: 'Postal code', required: false })
+  @IsOptional()
   @IsString()
-  country: string;
-
-  @ApiProperty({ description: 'Latitude', example: 40.7128, required: false })
-  @IsOptional()
-  @IsNumber()
-  latitude?: number;
-
-  @ApiProperty({ description: 'Longitude', example: -74.0060, required: false })
-  @IsOptional()
-  @IsNumber()
-  longitude?: number;
+  address_postal_code?: string;
 }
 
 export class SignUpDto {
-  @ApiProperty({ description: 'Username for the user', example: 'teaxmarkit' })
+  @ApiProperty({ example: 'johndoe' })
   @IsString()
   @MinLength(3)
   username: string;
 
-  @ApiProperty({ description: 'User email address', example: 'teaxmarkit@gmail.com' })
+  @ApiProperty({ example: 'john.doe@example.com', required: false })
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
 
-  @ApiProperty({ description: 'User password', example: '123456', minLength: 6 })
+  @ApiProperty({ example: '+23276123456', required: false })
+  @IsOptional()
+  @IsString()
+  primary_phone?: string;
+
+  @ApiProperty({ example: 'Password123!' })
   @IsString()
   @MinLength(6)
   password: string;
 
-  @ApiProperty({ description: 'User photo URL', example: 'http://example.com/photo.jpg', required: false })
+  @ApiProperty({ required: false, default: 'en' })
+  @IsOptional()
+  @IsString()
+  language_code?: string = 'en';
+
+  @ApiProperty({ required: false, default: 'UTC' })
+  @IsOptional()
+  @IsString()
+  timezone?: string = 'UTC';
+
+  @ApiProperty({ example: 'John Doe' })
+  @IsOptional()
+  @IsString()
+  display_name?: string;
+
+  @ApiProperty({ example: 'johndoe' })
+  @IsOptional()
+  @IsString()
+  nice_name?: string;
+
+  @ApiProperty({ example: 'https://example.com/photo.jpg' })
   @IsOptional()
   @IsString()
   photo?: string;
 
-  @ApiProperty({ description: 'Tenant nano id (optional)', example: 'abc123', required: false })
+  @ApiProperty({ example: 'uty_student' })
   @IsOptional()
   @IsString()
-  tenant_nano_id?: string;
+  user_type_id?: string;
 
-  @ApiProperty({ description: 'User profile details', type: UserProfileDto })
+  @ApiProperty({ type: UserDataDto })
   @ValidateNested()
-  @Type(() => UserProfileDto)
-  user_profile: UserProfileDto;
+  @Type(() => UserDataDto)
+  user_data: UserDataDto;
 
-  @ApiProperty({ description: 'User location details', type: UserLocationDto, required: false })
+  @ApiProperty({ required: false })
   @IsOptional()
-  @ValidateNested()
-  @Type(() => UserLocationDto)
-  user_location?: UserLocationDto;
+  @IsString()
+  tenant_id?: string;
 }
 
 export class SignInDto {
-  @ApiProperty({ description: 'User email address', example: 'teaxmarkit@gmail.com' })
-  @IsEmail({}, { message: 'Please provide a valid email address' })
-  email: string;
+  @ApiProperty({ example: 'john.doe@example.com', required: false })
+  @IsOptional()
+  @IsEmail()
+  email?: string;
 
-  @ApiProperty({ description: 'User password', example: '123456' })
-  @IsString({ message: 'Password must be a string' })
-  @MinLength(1, { message: 'Password is required' })
+  @ApiProperty({ example: '+23276123456', required: false })
+  @IsOptional()
+  @IsString()
+  primary_phone?: string;
+
+  @ApiProperty({ example: 'Password123!' })
+  @IsString()
+  @MinLength(6)
   password: string;
 }
 
-export class NewPasswordDto {
-  @ApiProperty({ description: 'User email address', example: 'teaxmarkit@gmail.com' })
+export class RequestOtpDto {
+  @ApiProperty({ example: 'john.doe@example.com', required: false })
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
+
+  @ApiProperty({ example: '+23276123456', required: false })
+  @IsOptional()
+  @IsString()
+  primary_phone?: string;
+
+  @ApiProperty({ example: 'sms', enum: ['sms', 'email'] })
+  @IsString()
+  channel: 'sms' | 'email';
+}
+
+export class NewPasswordDto {
+  @ApiProperty({ example: 'john.doe@example.com', required: false })
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @ApiProperty({ example: '+23276123456', required: false })
+  @IsOptional()
+  @IsString()
+  primary_phone?: string;
 
   @ApiProperty({ description: 'OTP code', example: '123456', minLength: 6 })
   @IsString()
@@ -180,9 +262,15 @@ export class NewPasswordDto {
 }
 
 export class VerifyOtpDto {
-  @ApiProperty({ description: 'User email address', example: 'teaxmarkit@gmail.com' })
+  @ApiProperty({ example: 'john.doe@example.com', required: false })
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
+
+  @ApiProperty({ example: '+23276123456', required: false })
+  @IsOptional()
+  @IsString()
+  primary_phone?: string;
 
   @ApiProperty({ description: 'OTP code', example: '123456', minLength: 6 })
   @IsString()
@@ -191,13 +279,25 @@ export class VerifyOtpDto {
 }
 
 export class ResendOtpDto {
-  @ApiProperty({ description: 'User email address', example: 'teaxmarkit@gmail.com' })
+  @ApiProperty({ example: 'john.doe@example.com', required: false })
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
+
+  @ApiProperty({ example: '+23276123456', required: false })
+  @IsOptional()
+  @IsString()
+  primary_phone?: string;
 }
 
 export class ForgotPasswordDto {
-  @ApiProperty({ description: 'User email address', example: 'teaxmarkit@gmail.com' })
+  @ApiProperty({ example: 'john.doe@example.com', required: false })
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
+
+  @ApiProperty({ example: '+23276123456', required: false })
+  @IsOptional()
+  @IsString()
+  primary_phone?: string;
 }

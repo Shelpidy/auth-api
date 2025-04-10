@@ -11,7 +11,8 @@ import * as schema from '../../database/schema';
 import { eq } from 'drizzle-orm';
 
 type TokenPayload = {
-  user_nano_id: string;
+  user_id: string;
+  tenant_id: string;
   roles: string[];
 };
 
@@ -36,7 +37,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     try {
       const decoded = this.jwtService.verify(jwtToken) as TokenPayload;
       const user = await this.db.query.users.findFirst({
-        where: eq(schema.users.user_nano_id, decoded.user_nano_id),
+        where: eq(schema.users.user_id, decoded.user_id),
         with: {
           user_roles: {
             with: {

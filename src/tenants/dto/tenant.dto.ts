@@ -1,407 +1,523 @@
-import {
-  IsString,
-  IsEmail,
-  IsOptional,
-  IsNumber,
-  ValidateNested,
-  IsNotEmpty,
-} from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsString, IsEmail, IsPhoneNumber, IsBoolean, IsOptional, ValidateNested, IsNumber, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
-export class TenantContactDto {
-  @ApiProperty({ description: 'Tenant email', example: 'tenant@example.com', required: false })
+export class CreateTenantDataDto {
+  @ApiProperty({ example: 'University of Sierra Leone' })
   @IsString()
-  @IsOptional()
-  tenant_email?: string;
+  long_name: string;
 
-  @ApiProperty({ description: 'Registrar email', example: 'registrar@example.com', required: false })
-  @IsOptional()
+  @ApiProperty({ example: 'USL Limited' })
   @IsString()
-  registrar_email?: string;
+  legal_name: string;
 
-  @ApiProperty({ description: 'Finance email', example: 'finance@example.com', required: false })
-  @IsOptional()
-  @IsString()
-  finance_email?: string;
-
-  @ApiProperty({ description: 'Chancellor email', example: 'chancellor@example.com', required: false })
+  @ApiProperty({ example: 'usl.edu.sl', required: false })
   @IsOptional()
   @IsString()
-  chancellor_email?: string;
+  domain?: string;
 
-  @ApiProperty({ description: 'VCP email', example: 'vcp@example.com', required: false })
+  @ApiProperty({ example: 'REG123456', required: false })
   @IsOptional()
   @IsString()
-  vcp_email?: string;
+  government_registration_id?: string;
 
-  @ApiProperty({ description: 'DVCP email', example: 'dvcp@example.com', required: false })
+  @ApiProperty({ example: 'ALT123456', required: false })
   @IsOptional()
   @IsString()
-  dvcp_email?: string;
+  government_alternate_registration_id?: string;
 
-  @ApiProperty({ description: 'ICTD email', example: 'ictd@example.com', required: false })
+  @ApiProperty({ example: 'Higher Education' })
+  @IsString()
+  education_category: string;
+
+  @ApiProperty({ example: 'Undergraduate' })
+  @IsString()
+  education_lowest_grade_level: string;
+
+  @ApiProperty({ example: 'Postgraduate' })
+  @IsString()
+  education_highest_grade_level: string;
+
+  @ApiProperty({ example: 'General Education', required: false })
   @IsOptional()
   @IsString()
-  ictd_email?: string;
+  education_classification?: string;
 
-  @ApiProperty({ description: 'Tenant phone', example: '+1234567890', required: false })
+  @ApiProperty({ example: 'Affiliated Institution', required: false })
   @IsOptional()
   @IsString()
-  tenant_phone?: string;
+  education_affiliation?: string;
 
-  @ApiProperty({ description: 'Registrar phone', example: '+1234567890', required: false })
+  @ApiProperty({ example: 'Association Name', required: false })
   @IsOptional()
   @IsString()
-  registrar_phone?: string;
+  education_association?: string;
 
-  @ApiProperty({ description: 'Finance phone', example: '+1234567890', required: false })
+  @ApiProperty({ example: '1900-01-01', required: false })
   @IsOptional()
   @IsString()
-  finance_phone?: string;
+  date_founded?: string;
 
-  @ApiProperty({ description: 'Chancellor phone', example: '+1234567890', required: false })
+  @ApiProperty({ example: 'A leading institution in higher education.', required: false })
   @IsOptional()
   @IsString()
-  chancellor_phone?: string;
+  description?: string;
 
-  @ApiProperty({ description: 'ICTD phone', example: '+1234567890', required: false })
-  @IsOptional()
-  @IsString()
-  ictd_phone?: string;
-
-  @ApiProperty({ description: 'Website', example: 'https://example.com', required: false })
+  @ApiProperty({ example: 'https://www.usl.edu.sl', required: false })
   @IsOptional()
   @IsString()
   website?: string;
-
-  @ApiProperty({ description: 'Facebook', example: 'https://facebook.com/example', required: false })
-  @IsOptional()
-  @IsString()
-  facebook?: string;
-
-  @ApiProperty({ description: 'LinkedIn', example: 'https://linkedin.com/example', required: false })
-  @IsOptional()
-  @IsString()
-  linkedin?: string;
-
-  @ApiProperty({ description: 'YouTube', example: 'https://youtube.com/example', required: false })
-  @IsOptional()
-  @IsString()
-  youtube?: string;
-
-  @ApiProperty({ description: 'Twitter', example: 'https://twitter.com/example', required: false })
-  @IsOptional()
-  @IsString()
-  twitter?: string;
-
-  @ApiProperty({ description: 'Instagram', example: 'https://instagram.com/example', required: false })
-  @IsOptional()
-  @IsString()
-  instagram?: string;
-
-  @ApiProperty({ description: 'TikTok', example: 'https://tiktok.com/example', required: false })
-  @IsOptional()
-  @IsString()
-  tiktok?: string;
 }
 
-export class TenantSettingsDto {
-  @ApiProperty({ description: 'Logo URL', example: 'https://example.com/logo.png', required: false })
+export class ContactEmailDto {
+  @ApiProperty({ example: 'Primary' })
+  @IsString()
+  email_type: string;
+
+  @ApiProperty({ example: 'Main Contact' })
+  @IsString()
+  email_name: string;
+
+  @ApiProperty({ example: 'contact@institution.edu' })
+  @IsEmail()
+  tenant_main_email: string;
+}
+
+export class ContactPhoneDto {
+  @ApiProperty({ example: 'Office' })
+  @IsString()
+  phone_type: string;
+
+  @ApiProperty({ example: 'Main Line' })
+  @IsString()
+  phone_name: string;
+
+  @ApiProperty({ example: '+23276123456' })
+  @IsPhoneNumber()
+  tenant_main_phone: string;
+}
+
+export class ContactAddressDto {
+  @ApiProperty({ example: 'Main Campus' })
+  @IsString()
+  address_type: string;
+
+  @ApiProperty({ example: 'Headquarters' })
+  @IsString()
+  address_name: string;
+
+  @ApiProperty({ example: 'Sierra Leone' })
+  @IsString()
+  address_country: string;
+
+  @ApiProperty({ example: 'Western Area', required: false })
   @IsOptional()
   @IsString()
-  logo?: string;
+  address_state?: string;
 
-  @ApiProperty({ description: 'Neutral color background', example: '#FFFFFF', required: false })
+  @ApiProperty({ example: 'Region Name', required: false })
   @IsOptional()
   @IsString()
-  neutral_color_background?: string;
+  address_region?: string;
 
-  @ApiProperty({ description: 'Neutral color sections', example: '#F0F0F0', required: false })
+  @ApiProperty({ example: 'District Name', required: false })
   @IsOptional()
   @IsString()
-  neutral_color_sections?: string;
+  address_district?: string;
 
-  @ApiProperty({ description: 'Neutral color text', example: '#000000', required: false })
+  @ApiProperty({ example: '123 Main Street' })
+  @IsString()
+  address_address_line1: string;
+
+  @ApiProperty({ example: 'Suite 456', required: false })
   @IsOptional()
   @IsString()
-  neutral_color_text?: string;
+  address_address_line2?: string;
 
-  @ApiProperty({ description: 'Primary color', example: '#FF0000', required: false })
+  @ApiProperty({ example: 'Freetown' })
+  @IsString()
+  address_city: string;
+
+  @ApiProperty({ example: '10101', required: false })
   @IsOptional()
   @IsString()
-  primary_color?: string;
+  address_postal_code?: string;
 
-  @ApiProperty({ description: 'Secondary color', example: '#00FF00', required: false })
+  @ApiProperty({ example: 8.484444, required: false })
+  @IsOptional()
+  @IsNumber()
+  address_latitude?: number;
+
+  @ApiProperty({ example: -13.234444, required: false })
+  @IsOptional()
+  @IsNumber()
+  address_longitude?: number;
+}
+
+export class ContactSocialDto {
+  @ApiProperty({ example: 'Facebook' })
+  @IsString()
+  social_type: string;
+
+  @ApiProperty({ example: 'Institution Facebook Page' })
+  @IsString()
+  social_name: string;
+
+  @ApiProperty({ example: 'https://facebook.com/institution' })
+  @IsString()
+  social_link: string;
+}
+
+export class CreateContactDto {
+  @ApiProperty({ example: 'Primary' })
+  @IsString()
+  contact_type: string;
+
+  @ApiProperty({ example: 'Main Office' })
+  @IsString()
+  Contact_name: string;
+
+  @ApiProperty()
+  @IsString()
+  first_name: string;
+
+  @ApiProperty()
   @IsOptional()
   @IsString()
-  secondary_color?: string;
+  middle_name?: string;
 
-  @ApiProperty({ description: 'Accent color', example: '#0000FF', required: false })
+  @ApiProperty()
+  @IsString()
+  last_name: string;
+
+  @ApiProperty()
   @IsOptional()
   @IsString()
-  accent_color?: string;
+  designation?: string;
 
-  @ApiProperty({ description: 'Semantic color success', example: '#28a745', required: false })
+  @ApiProperty()
   @IsOptional()
   @IsString()
-  semantic_color_success?: string;
+  gender?: string;
 
-  @ApiProperty({ description: 'Semantic color warning', example: '#ffc107', required: false })
+  @ApiProperty()
   @IsOptional()
   @IsString()
-  semantic_color_warning?: string;
+  company_name?: string;
 
-  @ApiProperty({ description: 'Semantic color error', example: '#dc3545', required: false })
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  is_primary_contact?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  is_billing_contact?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  is_registrar_contact?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  is_finance_contact?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  is_vc_contact?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  is_vcp_contact?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  is_dvcp_contact?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  is_ictd_contact?: boolean;
+
+  @ApiProperty()
   @IsOptional()
   @IsString()
-  semantic_color_error?: string;
+  Status?: string;
 
-  @ApiProperty({ description: 'Semantic color info', example: '#17a2b8', required: false })
+  @ApiProperty()
   @IsOptional()
   @IsString()
-  semantic_color_info?: string;
+  comment?: string;
 
-  @ApiProperty({ description: 'Timezone', example: 'America/New_York', required: false })
+  @ApiProperty()
+  @ValidateNested()
+  @Type(() => ContactEmailDto)
+  email: ContactEmailDto;
+
+  @ApiProperty()
+  @ValidateNested()
+  @Type(() => ContactPhoneDto)
+  phone: ContactPhoneDto;
+
+  @ApiProperty()
+  @ValidateNested()
+  @Type(() => ContactAddressDto)
+  address: ContactAddressDto;
+
+  @ApiProperty()
+  @ValidateNested()
+  @Type(() => ContactSocialDto)
+  social: ContactSocialDto;
+}
+
+export class CreateBaseTenantDto {
+  @ApiProperty({ example: 'tat_xB2Ke9oMpQ4wLvYj' })
+  @IsString()
+  tenant_account_type_id: string;
+
+  @ApiProperty({ example: 'university-of-sierra-leone' })
+  @IsString()
+  tenant_name: string;
+
+  @ApiProperty({ example: 'John Doe' })
+  @IsString()
+  tenant_owner_name: string;
+
+  @ApiProperty({ example: 'john.doe@institution.edu' })
+  @IsEmail()
+  tenant_owner_email: string;
+
+  @ApiProperty({ example: '+23276543210' })
+  @IsPhoneNumber()
+  tenant_owner_phone: string;
+
+  @ApiProperty({ example: 'tsu_aB9cD2eF4gH6iJ8k' })
+  @IsString()
+  tenant_subscription_id: string;
+
+  @ApiProperty({ example: 'usr_xB2Ke9oMpQ4wLvYj' })
+  @IsString()
+  tenant_user_id: string;
+
+  @ApiProperty({ example: false, required: false })
+  @IsOptional()
+  @IsBoolean()
+  status?: boolean = false;
+
+  @ApiProperty({ example: false, required: false })
+  @IsOptional()
+  @IsBoolean()
+  welcome_email_sent?: boolean = false;
+
+  @ApiProperty({ example: false, required: false })
+  @IsOptional()
+  @IsBoolean()
+  account_is_suspended?: boolean = false;
+
+  @ApiProperty({ example: false, required: false })
+  @IsOptional()
+  @IsBoolean()
+  account_is_expired?: boolean = false;
+
+  @ApiProperty({ example: false, required: false })
+  @IsOptional()
+  @IsBoolean()
+  account_subscription_paid?: boolean = false;
+}
+
+export class CreateTenantDto extends CreateBaseTenantDto {
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CreateTenantDataDto)
+  tenant_data?: CreateTenantDataDto;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CreateContactDto)
+  contact?: CreateContactDto;
+
+  @ApiProperty({ example: 'institution.edu', required: false })
+  @IsOptional()
+  @IsString()
+  domain?: string;
+}
+
+export class UpdateTenantDto extends CreateTenantDto {
+  @ApiProperty({ example: 'usr_xB2Ke9oMpQ4wLvYj' })
+  @IsString()
+  modified_by: string;
+}
+
+export class UpdateTenantDataDto extends CreateTenantDataDto {
+  @ApiProperty({ example: 'usr_xB2Ke9oMpQ4wLvYj' })
+  @IsString()
+  modified_by: string;
+}
+
+export class CreateEmailSettingsDto {
+  @ApiProperty({ example: 'ten_xB2Ke9oMpQ4wLvYj' })
+  @IsString()
+  tenant_id: string;
+
+  @ApiProperty({ example: 'smtp.gmail.com' })
+  @IsString()
+  email_smtp_server: string;
+
+  @ApiProperty({ example: 'noreply@institution.edu' })
+  @IsEmail()
+  email_smtp_email: string;
+
+  @ApiProperty({ example: 'smtp_user' })
+  @IsString()
+  email_smtp_username: string;
+
+  @ApiProperty({ example: 'smtp_pass_123' })
+  @IsString()
+  email_smtp_password: string;
+
+  @ApiProperty({ example: '465' })
+  @IsString()
+  email_smtp_ssl_port: string;
+
+  @ApiProperty({ example: '587' })
+  @IsString()
+  email_smtp_tls_port: string;
+
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  email_smtp_is_ssl: boolean;
+
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  email_smtp_is_tls: boolean;
+
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  email_smtp_authentication: boolean;
+
+  @ApiProperty({ example: 'Institution Name' })
+  @IsString()
+  email_smtp_full_name: string;
+}
+
+export class UpdateEmailSettingsDto extends CreateEmailSettingsDto {
+  @ApiProperty({ example: 'usr_xB2Ke9oMpQ4wLvYj' })
+  @IsString()
+  modified_by: string;
+}
+
+export class CreateSmsSettingsDto {
+  @ApiProperty({ example: 'ten_xB2Ke9oMpQ4wLvYj' })
+  @IsString()
+  tenant_id: string;
+
+  @ApiProperty({ example: 'https://api.sms-provider.com/send' })
+  @IsString()
+  sms_authorization_endpoint: string;
+
+  @ApiProperty({ example: 'auth_key_123xyz' })
+  @IsString()
+  sms_authorization_key: string;
+
+  @ApiProperty({ example: 'INSTITUTION' })
+  @IsString()
+  sms_authorization_sender: string;
+
+  @ApiProperty({ example: 'api_key_456abc' })
+  @IsString()
+  sms_authorization_api_key: string;
+}
+
+export class UpdateSmsSettingsDto extends CreateSmsSettingsDto {
+  @ApiProperty({ example: 'usr_xB2Ke9oMpQ4wLvYj' })
+  @IsString()
+  modified_by: string;
+}
+
+export class SendWelcomeEmailDto {
+  @ApiProperty()
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  tenant_name: string;
+}
+
+export class CreateTenantSettingsDto {
+  @ApiProperty()
+  @IsString()
+  tenant_id: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  tenant_academic_year_id?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  tenant_academic_semester_id?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  branding_logo?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  branding_neutal_color_background?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  branding_neutal_color_sections?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  branding_neutal_color_text?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  branding_primary_color?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  branding_secondary_color?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  branding_accent_color?: string;
+
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   timezone?: string;
 
-  @ApiProperty({ description: 'Language code', example: 'en', required: false })
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   language_code?: string;
 
-  @ApiProperty({ description: 'Currency', example: 'USD', required: false })
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   currency?: string;
 }
 
-export class CreateTenantDto {
-  @ApiProperty({ description: 'Account type', example: 'Education' })
-  @IsString()
-  @IsNotEmpty()
-  account_type: string;
-
-  @ApiProperty({ description: 'Short name', example: 'Acme' })
-  @IsString()
-  @IsNotEmpty()
-  short_name: string;
-
-  @ApiProperty({ description: 'Long name', example: 'Acme Corporation' })
-  @IsString()
-  @IsNotEmpty()
-  long_name: string;
-
-  @ApiProperty({ description: 'Legal name', example: 'Acme Corp LLC' })
-  @IsString()
-  @IsNotEmpty()
-  legal_name: string;
-
-  @ApiProperty({ description: 'Government registration ID', example: '123456789', required: false })
-  @IsOptional()
-  @IsString()
-  government_registration_id?: string;
-
-  @ApiProperty({ description: 'Government alternate registration ID', example: '987654321', required: false })
-  @IsOptional()
-  @IsString()
-  government_alternate_registration_id?: string;
-
-  @ApiProperty({ description: 'Education category', example: 'Higher Education' })
-  @IsString()
-  @IsNotEmpty()
-  education_category: string;
-
-  @ApiProperty({ description: 'Education classification', example: 'University', required: false })
-  @IsOptional()
-  @IsString()
-  education_classification?: string;
-
-  @ApiProperty({ description: 'Education affiliation', example: 'Public', required: false })
-  @IsOptional()
-  @IsString()
-  education_affiliation?: string;
-
-  @ApiProperty({ description: 'Education association', example: 'Association of Universities', required: false })
-  @IsOptional()
-  @IsString()
-  education_association?: string;
-
-  @ApiProperty({ description: 'Education lowest grade level', example: 'Undergraduate' })
-  @IsString()
-  @IsNotEmpty()
-  education_lowest_grade_level: string;
-
-  @ApiProperty({ description: 'Education highest grade level', example: 'Postgraduate' })
-  @IsString()
-  @IsNotEmpty()
-  education_highest_grade_level: string;
-
-  @ApiProperty({ description: 'Date founded', example: '2000-01-01', required: false })
-  @IsOptional()
-  @IsString()
-  date_founded?: string;
-
-  @ApiProperty({ description: 'Description', example: 'Leading provider of innovative solutions', required: false })
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @ApiProperty({ description: 'Account owner name', example: 'John Doe' })
-  @IsString()
-  @IsNotEmpty()
-  account_owner_name: string;
-
-  @ApiProperty({ description: 'Account owner email', example: 'john.doe@example.com' })
-  @IsString()
-  @IsNotEmpty()
-  account_owner_email: string;
-
-  @ApiProperty({ description: 'Account owner phone', example: '+1234567890' })
-  @IsString()
-  @IsNotEmpty()
-  account_owner_phone: string;
-
-  @ApiProperty({ description: 'Subscription name', example: 'Premium' })
-  @IsString()
-  @IsNotEmpty()
-  subscription_name: string;
-
-  @ApiProperty({ description: 'Tenant contact details', required: false })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => TenantContactDto)
-  tenant_contact?: TenantContactDto;
-
-  @ApiProperty({ description: 'Tenant settings', required: false })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => TenantSettingsDto)
-  tenant_settings?: TenantSettingsDto;
-}
-
-export class UpdateTenantDto {
-  @ApiProperty({ description: 'Account type', example: 'Education', required: false })
-  @IsOptional()
-  @IsString()
-  account_type?: string;
-
-  @ApiProperty({ description: 'Short name', example: 'Acme', required: false })
-  @IsOptional()
-  @IsString()
-  short_name?: string;
-
-  @ApiProperty({ description: 'Long name', example: 'Acme Corporation', required: false })
-  @IsOptional()
-  @IsString()
-  long_name?: string;
-
-  @ApiProperty({ description: 'Legal name', example: 'Acme Corp LLC', required: false })
-  @IsOptional()
-  @IsString()
-  legal_name?: string;
-
-  @ApiProperty({ description: 'Description', example: 'Leading provider of innovative solutions', required: false })
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @ApiProperty({ description: 'Registration number', example: '123456789', required: false })
-  @IsOptional()
-  @IsString()
-  registrationNumber?: string;
-
-  @ApiProperty({ description: 'Industry', example: 'Technology', required: false })
-  @IsOptional()
-  @IsString()
-  industry?: string;
-
-  @ApiProperty({ description: 'Status', example: 'Active', required: false })
-  @IsOptional()
-  @IsString()
-  status?: string;
-
-  @ApiProperty({ description: 'Contact details', required: false })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => TenantContactDto)
-  contact?: TenantContactDto;
-}
-
-export class TenantLocationDto {
-  @ApiProperty({ description: 'Name', example: 'Main Office' })
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @ApiProperty({ description: 'Location type', example: 'Headquarters' })
-  @IsString()
-  @IsNotEmpty()
-  location_type: string;
-
-  @ApiProperty({ description: 'Address line 1', example: '123 Main St' })
-  @IsString()
-  @IsNotEmpty()
-  address_line1: string;
-
-  @ApiProperty({ description: 'Address line 2', example: 'Suite 100', required: false })
-  @IsOptional()
-  @IsString()
-  address_line2?: string;
-
-  @ApiProperty({ description: 'City', example: 'Metropolis' })
-  @IsString()
-  @IsNotEmpty()
-  city: string;
-
-  @ApiProperty({ description: 'State', example: 'NY', required: false })
-  @IsOptional()
-  @IsString()
-  state?: string;
-
-  @ApiProperty({ description: 'Province', example: 'Ontario', required: false })
-  @IsOptional()
-  @IsString()
-  province?: string;
-
-  @ApiProperty({ description: 'Postal code', example: '12345', required: false })
-  @IsOptional()
-  @IsString()
-  postal_code?: string;
-
-  @ApiProperty({ description: 'Country', example: 'USA' })
-  @IsString()
-  @IsNotEmpty()
-  country: string;
-
-  @ApiProperty({ description: 'Latitude', example: 40.7128, required: false })
-  @IsOptional()
-  @IsNumber()
-  latitude?: number;
-
-  @ApiProperty({ description: 'Longitude', example: -74.0060, required: false })
-  @IsOptional()
-  @IsNumber()
-  longitude?: number;
-}
-
-export class CreateTenantSubscriptionDto {
-  @ApiProperty({ description: 'Subscription name', example: 'Premium' })
-  @IsString()
-  @IsNotEmpty()
-  subscription_name: string;
-
-  @ApiProperty({ description: 'Tenant nano ID', example: 'abc123' })
-  @IsString()
-  @IsNotEmpty()
-  tenant_nano_id: string;
-}
-
-export class UpdateTenantSubscriptionDto {
-  @ApiProperty({ description: 'Subscription name', example: 'Premium', required: false })
-  @IsString()
-  @IsOptional()
-  subscription_name?: string;
-}
+export class UpdateTenantSettingsDto extends CreateTenantSettingsDto {}

@@ -12,7 +12,8 @@ import * as schema from '../../database/schema';
 import { eq } from 'drizzle-orm';
 
 type TokenPayload = {
-  user_nano_id: string;
+  user_id: string;
+  tenant_id: string;
   roles: string[];
 };
 
@@ -35,7 +36,7 @@ export class ManagerGuard implements CanActivate {
     try {
       const decoded = this.jwtService.verify(token) as TokenPayload;
       const user = await this.db.query.users.findFirst({
-        where: eq(schema.users.user_nano_id, decoded.user_nano_id),
+        where: eq(schema.users.user_id, decoded.user_id),
         with: {
           user_roles: {
             with: {
@@ -53,11 +54,11 @@ export class ManagerGuard implements CanActivate {
         ur?.role?.name?.includes('manager'),
       );
 
-      const isUserAdmin = user.user_roles.some((ur) =>
-        ur?.role?.name?.includes('admin'),
+      const isSuperAdmin = user.user_roles.some((ur) =>
+        ur?.role?.name?.includes('super'),
       );
 
-      if (!isUserManager || !isUserAdmin) {
+      if (!isUserManager || !isSuperAdmin) {
         throw new ForbiddenException('Forbidden: Managers or Admins only');
       }
       request.user = decoded;

@@ -1,188 +1,287 @@
 import { Type } from 'class-transformer';
-import {
-  IsString,
-  IsUUID,
-  IsOptional,
-  IsNumber,
-  ValidateNested,
-  IsBoolean,
-  IsDate,
-  IsNotEmpty,
-} from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsEmail, ValidateNested, IsDateString, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UserDataDto {
-  @ApiProperty({ description: 'Tenant nano id', example: 'tenant-nano-id', required: false })
+// Base user fields matching schema
+export class UserBaseDto {
+  @ApiProperty({ example: 'ten_xB2Ke9oMpQ4wLvYj' })
+  @IsString()
+  tenant_id: string;
+
+  @ApiProperty({ example: 'uty_student' })
+  @IsString()
+  user_type_id: string;
+
+  @ApiProperty({ example: 'John Doe' })
+  @IsString()
+  display_name: string;
+
+  @ApiProperty({ example: 'johndoe' })
+  @IsString()
+  nice_name: string;
+
+  @ApiProperty({ example: 'john.doe' })
+  @IsString()
+  username: string;
+
+  @ApiProperty({ example: 'john.doe@example.com' })
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({ example: '+23276123456' })
+  @IsString()
+  primary_phone: string;
+
+  @ApiProperty({ example: 'Password123!' })
+  @IsString()
+  password: string;
+
+  @ApiProperty({ example: 'en', required: false })
   @IsOptional()
   @IsString()
-  tenant_nano_id?: string;
+  language_code?: string = 'en';
 
-  @ApiProperty({ description: 'Language code', example: 'en', required: false })
+  @ApiProperty({ example: 'UTC', required: false })
   @IsOptional()
   @IsString()
-  language_code?: string;
+  timezone?: string = 'UTC';
 
-  @ApiProperty({ description: 'Timezone', example: 'GMT', required: false })
-  @IsOptional()
-  @IsString()
-  timezone?: string;
-
-  @ApiProperty({ description: 'Display name', example: 'John Doe', required: false })
-  @IsOptional()
-  @IsString()
-  display_name?: string;
-
-  @ApiProperty({ description: 'Nick name', example: 'Johnny', required: false })
-  @IsOptional()
-  @IsString()
-  nick_name?: string;
-
-  @ApiProperty({ description: 'Username', example: 'johndoe', required: false })
-  @IsOptional()
-  @IsString()
-  username?: string;
-
-  @ApiProperty({ description: 'Email', example: 'john.doe@example.com', required: false })
-  @IsOptional()
-  @IsString()
-  email?: string;
-
-  @ApiProperty({ description: 'Password status', example: 'active', required: false })
-  @IsOptional()
-  @IsString()
-  password_status?: string;
-
-  @ApiProperty({ description: 'Status', example: 'active', required: false })
-  @IsOptional()
-  @IsString()
-  status?: string;
-
-  @ApiProperty({ description: 'Photo URL', example: 'http://example.com/photo.jpg', required: false })
+  @ApiProperty({ example: 'https://example.com/photo.jpg', required: false })
   @IsOptional()
   @IsString()
   photo?: string;
 
-  @ApiProperty({ description: 'Portal access', example: true, required: false })
+  @ApiProperty({ example: 'pay_xB2Ke9oMpQ4wLvYj', required: false })
+  @IsOptional()
+  @IsString()
+  user_payment_id?: string;
+
+  @ApiProperty({ example: true, required: false })
   @IsOptional()
   @IsBoolean()
-  portal_access?: boolean;
+  is_using_bank_pin?: boolean;
+
+  @ApiProperty({ example: false, required: false })
+  @IsOptional()
+  @IsBoolean()
+  is_using_bank_voucher?: boolean;
+
+  @ApiProperty({ example: true, required: false })
+  @IsOptional()
+  @IsBoolean()
+  is_paying_online?: boolean;
+
+  @ApiProperty({ example: false, required: false })
+  @IsOptional()
+  @IsBoolean()
+  paid_for_application?: boolean;
+
+  @ApiProperty({ example: true, required: false })
+  @IsOptional()
+  @IsBoolean()
+  paid_admission_acceptance_fees?: boolean;
+
+  @ApiProperty({ example: true, required: false })
+  @IsOptional()
+  @IsBoolean()
+  can_access_portal?: boolean = true;
+
+  @ApiProperty({ example: 'active', required: false })
+  @IsOptional()
+  @IsString()
+  status?: string;
 }
 
-export class UserProfileDataDto {
-  @ApiProperty({ description: 'Name prefix', example: 'Mr.', required: false })
+// User data fields matching schema
+export class UserDataDto {
+  @ApiProperty({ example: 'Mr.', required: false })
   @IsOptional()
   @IsString()
   name_prefix?: string;
 
-  @ApiProperty({ description: 'Full name', example: 'John Doe' })
+  @ApiProperty({ example: 'John Doe' })
   @IsString()
   full_name: string;
 
-  @ApiProperty({ description: 'First name', example: 'John' })
+  @ApiProperty({ example: 'John' })
   @IsString()
   first_name: string;
 
-  @ApiProperty({ description: 'Middle name', example: 'Michael', required: false })
+  @ApiProperty({ example: 'Michael', required: false })
   @IsOptional()
   @IsString()
   middle_name?: string;
 
-  @ApiProperty({ description: 'Last name', example: 'Doe' })
+  @ApiProperty({ example: 'Doe' })
   @IsString()
   last_name: string;
 
-  @ApiProperty({ description: 'Name suffix', example: 'Jr.', required: false })
+  @ApiProperty({ example: 'Jr.', required: false })
   @IsOptional()
   @IsString()
   name_suffix?: string;
 
-  @ApiProperty({ description: 'Primary phone', example: '+1234567890', required: false })
-  @IsOptional()
-  @IsString()
-  primary_phone?: string;
-
-  @ApiProperty({ description: 'Secondary phone', example: '+0987654321', required: false })
-  @IsOptional()
-  @IsString()
-  secondary_phone?: string;
-
-  @ApiProperty({ description: 'Secondary email', example: 'john.secondary@example.com', required: false })
-  @IsOptional()
-  @IsString()
-  secondary_email?: string;
-
-  @ApiProperty({ description: 'Gender', example: 'Male', required: false })
-  @IsOptional()
-  @IsString()
-  gender?: string;
-
-  @ApiProperty({ description: 'Marital status', example: 'Single', required: false })
-  @IsOptional()
-  @IsString()
-  marital_status?: string;
-
-  @ApiProperty({ description: 'Date of birth', example: '1990-01-01', required: false })
-  @IsOptional()
-  @IsString()
-  date_of_birth?: string;
-
-  @ApiProperty({ description: 'Country of birth', example: 'USA', required: false })
-  @IsOptional()
-  @IsString()
-  country_of_birth?: string;
-
-  @ApiProperty({ description: 'Nationality', example: 'American', required: false })
-  @IsOptional()
-  @IsString()
-  nationality?: string;
-
-  @ApiProperty({ description: 'National ID number', example: '123456789', required: false })
+  @ApiProperty({ example: '123456789', required: false })
   @IsOptional()
   @IsString()
   national_id_number?: string;
 
-  @ApiProperty({ description: 'Is disabled', example: false, required: false })
-  @IsOptional()
-  @IsBoolean()
-  is_disabled?: boolean;
-
-  @ApiProperty({ description: 'Disability status', example: 'None', required: false })
+  @ApiProperty({ example: '987654321', required: false })
   @IsOptional()
   @IsString()
-  disability_status?: string;
+  other_government_id_numer?: string;
+
+  @ApiProperty({ example: 'https://example.com/id_photo.jpg', required: false })
+  @IsOptional()
+  @IsString()
+  uploaded_id_photo?: string;
+
+  @ApiProperty({ example: '+23276123457', required: false })
+  @IsOptional()
+  @IsString()
+  secondary_phone?: string;
+
+  @ApiProperty({ example: 'john.secondary@example.com', required: false })
+  @IsOptional()
+  @IsEmail()
+  secondary_email?: string;
+
+  // Demographic fields
+  @ApiProperty({ example: 'Male', required: false })
+  @IsOptional()
+  @IsString()
+  demographic_gender?: string;
+
+  @ApiProperty({ example: 'Single', required: false })
+  @IsOptional()
+  @IsString()
+  demographic_marital_status?: string;
+
+  @ApiProperty({ example: '1990-01-01', required: false })
+  @IsOptional()
+  @IsDateString()
+  demographic_date_of_birth?: string;
+
+  @ApiProperty({ example: 'USA', required: false })
+  @IsOptional()
+  @IsString()
+  demographic_country_of_birth?: string;
+
+  @ApiProperty({ example: 'American', required: false })
+  @IsOptional()
+  @IsString()
+  demographic_nationality?: string;
+
+  @ApiProperty({ example: false, required: false })
+  @IsOptional()
+  @IsBoolean()
+  demographic_is_disabled?: boolean;
+
+  @ApiProperty({ example: 'None', required: false })
+  @IsOptional()
+  @IsString()
+  demographic_disability_status?: string;
+
+  // Address fields
+  @ApiProperty({ example: 'Home', required: false })
+  @IsOptional()
+  @IsString()
+  address_name?: string;
+
+  @ApiProperty({ example: 'Residential', required: false })
+  @IsOptional()
+  @IsString()
+  address_type?: string;
+
+  @ApiProperty({ example: 'USA', required: false })
+  @IsOptional()
+  @IsString()
+  address_country?: string;
+
+  @ApiProperty({ example: 'New York', required: false })
+  @IsOptional()
+  @IsString()
+  address_state?: string;
+
+  @ApiProperty({ example: 'East Coast', required: false })
+  @IsOptional()
+  @IsString()
+  address_region?: string;
+
+  @ApiProperty({ example: 'Manhattan', required: false })
+  @IsOptional()
+  @IsString()
+  address_district?: string;
+
+  @ApiProperty({ example: '123 Main St', required: false })
+  @IsOptional()
+  @IsString()
+  address_address_line1?: string;
+
+  @ApiProperty({ example: 'Apt 4B', required: false })
+  @IsOptional()
+  @IsString()
+  address_address_line2?: string;
+
+  @ApiProperty({ example: 'New York', required: false })
+  @IsOptional()
+  @IsString()
+  address_city?: string;
+
+  @ApiProperty({ example: '10001', required: false })
+  @IsOptional()
+  @IsString()
+  address_postal_code?: string;
+
+  @ApiProperty({ example: 40.7128, required: false })
+  @IsOptional()
+  @IsString()
+  address_latitude?: number;
+
+  @ApiProperty({ example: -74.0060, required: false })
+  @IsOptional()
+  @IsString()
+  address_longitude?: number;
+}
+
+export class CreateUserDto extends UserBaseDto {
+  @ApiProperty({ type: () => UserDataDto })
+  @ValidateNested()
+  @Type(() => UserDataDto)
+  user_data: UserDataDto;
 }
 
 export class UserUpdateDto {
   @IsOptional()
   @ValidateNested()
-  @Type(() => UserDataDto)
-  user?: UserDataDto;
+  @Type(() => UserBaseDto)
+  user?: Partial<UserBaseDto>;
 
   @IsOptional()
   @ValidateNested()
-  @Type(() => UserProfileDataDto)
-  profile?: UserProfileDataDto;
+  @Type(() => UserDataDto)
+  user_data?: Partial<UserDataDto>;
 }
 
 export class AssignRoleDto {
-  @ApiProperty({ description: 'Role nano id to assign', example: 'role-nano-id' })
+  @ApiProperty({ example: 'rol_xB2Ke9oMpQ4wLvYj', description: 'Role nano id to assign' })
   @IsString()
   role_nano_id: string;
 }
 
 export class AssignTenantDto {
-  @ApiProperty({ description: 'Tenant nano id to assign', example: 'tenant-nano-id' })
+  @ApiProperty({ example: 'ten_aB9cD2eF4gH6iJ8k', description: 'Tenant nano id to assign' })
   @IsString()
   tenant_nano_id: string;
 }
 
 export class UsersByRoleDto {
-  @ApiProperty({ description: 'Page number for pagination', example: 1, required: false })
+  @ApiProperty({ example: 1, description: 'Page number for pagination', required: false })
   @IsOptional()
   @IsNumber()
   page?: number = 1;
 
-  @ApiProperty({ description: 'Limit of results per page', example: 10, required: false })
+  @ApiProperty({ example: 10, description: 'Limit of results per page', required: false })
   @IsOptional()
   @IsNumber()
   limit?: number = 10;
@@ -232,41 +331,31 @@ export class UserLocationDto {
   longitude?: number;
 }
 
-export class CreateUserPaymentDto {
-  @ApiProperty({ description: 'User nano id', example: 'user-nano-id' })
+export class CreateRoleDto {
+  @ApiProperty({ example: 'Administrator' })
   @IsString()
-  @IsNotEmpty()
-  user_nano_id: string;
+  name: string;
 
-  @ApiProperty({ description: 'Payment type', example: 'Credit Card' })
-  @IsString()
-  @IsNotEmpty()
-  payment_type: string;
-
-  @ApiProperty({ description: 'Payment method', example: 'Visa' })
-  @IsString()
-  @IsNotEmpty()
-  payment_method: string;
-
-  @ApiProperty({ description: 'Payment details', example: 'Payment details here', required: false })
-  @IsString()
+  @ApiProperty({ example: 'ten_xB2Ke9oMpQ4wLvYj', required: false })
   @IsOptional()
-  payment_details?: string;
+  @IsString()
+  tenant_id?: string;
 }
 
-export class UpdateUserPaymentDto {
-  @ApiProperty({ description: 'Updated payment type', example: 'Credit Card', required: false })
+export class CreateUserTypeDto {
+  @ApiProperty({ example: 'Student' })
   @IsString()
-  @IsOptional()
-  payment_type?: string;
+  user_type_name: string;
 
-  @ApiProperty({ description: 'Updated payment method', example: 'Visa', required: false })
-  @IsString()
+  @ApiProperty({ required: false })
   @IsOptional()
-  payment_method?: string;
+  @IsString()
+  tenant_id?: string;
+}
 
-  @ApiProperty({ description: 'Updated payment details', example: 'Updated payment details here', required: false })
-  @IsString()
+export class UpdateUserTypeDto {
+  @ApiProperty()
   @IsOptional()
-  payment_details?: string;
+  @IsString()
+  user_type_name?: string;
 }

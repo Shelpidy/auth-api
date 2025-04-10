@@ -1,22 +1,24 @@
 import { Module } from '@nestjs/common';
-import { RolesController } from './roles.controller';
-import { RolesService } from './roles.service';
 import { DatabaseModule } from '../database/database.module';
-import { AuthModule } from '../auth/auth.module'; // Add this import
+import { RolesService } from './roles.service';
+import { RolesController } from './roles.controller';
+import { CommonModule } from '../common/common.module';
 import { JwtModule } from '@nestjs/jwt';
-import { oauthConfig } from 'src/config/oauth.config';
+import { oauthConfig } from '../config/oauth.config';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
-    DatabaseModule,
+    DatabaseModule, 
+    CommonModule,
+    AuthModule,
     JwtModule.register({
       secret: oauthConfig.jwt.secret,
       signOptions: { expiresIn: '24h' },
     }),
-    AuthModule,
   ],
   controllers: [RolesController],
   providers: [RolesService],
-  exports: [RolesService],
+  exports: [RolesService]
 })
 export class RolesModule {}

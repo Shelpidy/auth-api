@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Patch, UseGuards, Req, Get, HttpStatus, HttpCode, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignUpDto, SignInDto, VerifyOtpDto, ResendOtpDto, NewPasswordDto, ForgotPasswordDto } from './dto/auth.dto';
+import { SignUpDto, SignInDto, VerifyOtpDto, ResendOtpDto, NewPasswordDto, ForgotPasswordDto, RequestOtpDto} from './dto/auth.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 
@@ -14,40 +14,37 @@ interface OAuthRequest extends Request {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // Public routes - no CurrentUser needed
   @Post('signup')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Register a new user', description: 'Creates a new user account and sends a verification OTP email.' })
-  @ApiResponse({ status: 201, description: 'User registered and OTP sent.' })
-  @ApiBody({ type: SignUpDto, description: 'User signup payload' })
-  async signUp(@Body() signUpDto: SignUpDto) {
-    const user = await this.authService.signUp(signUpDto);
+  @HttpCode(HttpStatus.CREATED) // 201
+  @ApiOperation({ summary: 'Register new user and send OTP' })
+  async signUp(@Body() dto: SignUpDto) {
+    const user = await this.authService.signUp(dto);
     return {
-      message:
-        'User registered successfully. A verification code has been sent to your email.',
+      message: 'User registered successfully. OTP sent for verification.',
       user,
     };
   }
 
-  @Post('verify-email')
-  @HttpCode(HttpStatus.ACCEPTED)
-  @ApiOperation({ summary: 'Verify user email', description: 'Verifies the user email based on the OTP provided.' })
-  @ApiResponse({ status: 202, description: 'Email verified successfully.' })
-  async verifyEmail(@Body() verifyEmailDto: VerifyOtpDto) {
-    return this.authService.verifyEmail(verifyEmailDto);
+  @Post('verify-otp')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify OTP and complete authentication' })
+  async verifyOtp(@Body() dto: VerifyOtpDto) {
+    return this.authService.verifyOtp(dto);
   }
 
   @Post('resend-otp')
-  @HttpCode(HttpStatus.ACCEPTED)
-  async resendOtp(@Body() resendOtpDto: ResendOtpDto) {
-    return this.authService.resendOtp(resendOtpDto);
+  @HttpCode(HttpStatus.OK) 
+  @ApiOperation({ summary: 'Request new OTP via SMS or email' })
+  async resendOtp(@Body() dto: ResendOtpDto) {
+    return this.authService.resendOtp(dto);
   }
 
   @Post('signin')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'User sign in', description: 'Authenticates a user and returns a JWT token.' })
-  @ApiResponse({ status: 200, description: 'Sign in successful, token returned.' })
-  async signIn(@Body() signInDto: SignInDto) {
-    return this.authService.signIn(signInDto);
+  @ApiOperation({ summary: 'Sign in and receive 2FA OTP' })
+  async signIn(@Body() dto: SignInDto) {
+    return this.authService.signIn(dto);
   }
 
   @Post('forget-password')
@@ -57,7 +54,7 @@ export class AuthController {
   }
 
   @Patch('reset-password')
-  @HttpCode(HttpStatus.ACCEPTED)
+  @HttpCode(HttpStatus.ACCEPTED) // 202
   async resetPassword(@Body() newPasswordDto: NewPasswordDto) {
     return this.authService.resetPassword(newPasswordDto);
   }
@@ -86,6 +83,42 @@ export class AuthController {
   @Get('microsoft/callback')
   @UseGuards(AuthGuard('microsoft'))
   async microsoftAuthCallback(@Req() req: OAuthRequest) {
+    return this.authService.oauthCallback(req);
+  }
+
+  @Get('facebook')
+  @UseGuards(AuthGuard('facebook'))
+  @ApiOperation({ summary: 'Initiate Facebook OAuth' })
+  async facebookAuth() {
+    // Facebook authentication will be handled by Passport
+  }
+
+  @Get('facebook/callback')
+  @UseGuards(AuthGuard('facebook'))
+  @ApiOperation({ 
+    summary: 'Facebook OAuth callback',
+    description: 'Processes the Facebook OAuth callback and returns JWT token.'
+  })
+  @ApiBearerAuth()
+  async facebookAuthCallback(@Req() req: OAuthRequest) {
+    return this.authService.oauthCallback(req);
+  }
+
+  @Get('apple')
+  @UseGuards(AuthGuard('apple'))
+  @ApiOperation({ summary: 'Initiate Apple OAuth' })
+  async appleAuth() {
+    // Apple authentication will be handled by Passport
+  }
+
+  @Get('apple/callback')
+  @UseGuards(AuthGuard('apple'))
+  @ApiOperation({ 
+    summary: 'Apple OAuth callback',
+    description: 'Processes the Apple OAuth callback and returns JWT token.'
+  })
+  @ApiBearerAuth()
+  async appleAuthCallback(@Req() req: OAuthRequest) {
     return this.authService.oauthCallback(req);
   }
 }
