@@ -10,6 +10,7 @@ import { LoggerMiddleware } from './middleware/logger.middleware';
 import { CustomLogger } from './config/logger.config';
 import { RolesModule } from './roles/roles.module';
 import { SmsModule } from './sms/sms.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SmsModule } from './sms/sms.module';
     TenantsModule,
     RolesModule,
     SmsModule,
+    CommonModule,
   ],
   controllers: [AppController],
   providers: [AppService, CustomLogger],

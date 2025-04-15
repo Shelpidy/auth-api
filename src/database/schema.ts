@@ -11,11 +11,20 @@ import {
   integer,
   decimal,
   uniqueIndex,
+  pgPolicy,
 } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 
 // Set schema name to 'core'
 const schemaName = 'core';
+
+// Update the RLS policy helper
+const rls_policy = (table: string) => ({
+  tenant_isolation: {
+    name: 'tenant_isolation',
+    using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+  }
+});
 
 // Base tables with schema prefix
 export const tenants = pgTable(`tenants`, {
@@ -43,6 +52,11 @@ export const tenants = pgTable(`tenants`, {
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
 }, (table) => ({
   rls: true, // Enable RLS for this table
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
 }));
 
 export const tenant_account_types = pgTable(`tenant_account_types`, {
@@ -76,7 +90,14 @@ export const tenant_data = pgTable(`tenant_data`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const contacts = pgTable(`contacts`, {
   contact_id: varchar('contact_id', { length: 22 }).primaryKey(),
@@ -110,6 +131,11 @@ export const contacts = pgTable(`contacts`, {
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
 }, (table) => ({
   rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
 }));
 
 export const contacts_email = pgTable(`contacts_email`, {
@@ -124,7 +150,14 @@ export const contacts_email = pgTable(`contacts_email`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const contacts_phone = pgTable(`contacts_phone`, {
   contact_phone_id: varchar('contact_phone_id', { length: 22 }).primaryKey(),
@@ -138,7 +171,14 @@ export const contacts_phone = pgTable(`contacts_phone`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const contacts_address = pgTable(`contacts_address`, {
   contact_address_id: varchar('contact_address_id', { length: 22 }).primaryKey(),
@@ -161,7 +201,14 @@ export const contacts_address = pgTable(`contacts_address`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const contacts_social = pgTable(`contacts_social`, {
   contact_social_id: varchar('contact_social_id', { length: 22 }).primaryKey(),
@@ -175,7 +222,14 @@ export const contacts_social = pgTable(`contacts_social`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const email_settings = pgTable(`email_settings`, {
   email_setting_id: varchar('email_setting_id', { length: 22 }),
@@ -196,7 +250,14 @@ export const email_settings = pgTable(`email_settings`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const sms_settings = pgTable(`sms_settings`, {
   sms_setting_id: varchar('sms_setting_id', { length: 22 }),
@@ -211,7 +272,14 @@ export const sms_settings = pgTable(`sms_settings`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 
 // Subcription tables
@@ -228,7 +296,14 @@ export const tenant_subscriptions = pgTable(`tenant_subscriptions`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 // Add Academic tables
 export const tenant_academic_years = pgTable(`tenant_academic_years`, {
@@ -250,7 +325,14 @@ export const tenant_academic_semesters = pgTable(`tenant_academic_semesters`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 // Add users and authentication tables
 export const users = pgTable(`users`, {
@@ -268,7 +350,7 @@ export const users = pgTable(`users`, {
   password: varchar('password', { length: 80 }).notNull(),
   password_status: integer('password_status').default(0),
   status: varchar('status').default("active"),
-  photo: varchar('photo', { length: 22 }),
+  photo: text('photo'),
   is_verified: boolean('is_verified').default(false),
   user_payment_id: varchar('user_payment_id', { length: 22 }),
   is_using_bank_pin: boolean('is_using_bank_pin').default(false),
@@ -285,6 +367,11 @@ export const users = pgTable(`users`, {
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
 }, (table) => ({
   rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
 }));
 
 export const user_data = pgTable(`user_data`, {
@@ -313,7 +400,14 @@ export const user_data = pgTable(`user_data`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const user_auths = pgTable(`user_auths`, {
   user_auth_id: varchar('user_auth_id', { length: 22 }).primaryKey(),
@@ -328,7 +422,14 @@ export const user_auths = pgTable(`user_auths`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const roles = pgTable(`roles`, {
   role_id: varchar('role_id', { length: 22 }),
@@ -341,6 +442,11 @@ export const roles = pgTable(`roles`, {
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
 }, (table) => ({
   rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
 }));
 
 export const user_roles = pgTable(`user_roles`, {
@@ -353,7 +459,14 @@ export const user_roles = pgTable(`user_roles`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const user_types = pgTable(`user_types`, {
   user_type_id: varchar('user_type_id', { length: 22 }).primaryKey(),
@@ -416,7 +529,14 @@ export const tenant_settings = pgTable(`tenant_settings`, {
   timezone: text('timezone').default('UTC'),
   language_code: varchar('language_code', { length: 12 }).default('en-sl'),
   currency: text('currency').default('SLE'),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const settings = pgTable(`settings`, {
   setting_id: varchar('setting_id', { length: 22 }),
@@ -432,7 +552,14 @@ export const settings = pgTable(`settings`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 // Add finance related tables
 export const finance_settings = pgTable(`finance_settings`, {
@@ -443,7 +570,14 @@ export const finance_settings = pgTable(`finance_settings`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const user_settings = pgTable(`user_settings`, {
   user_setting_id: varchar('user_setting_id', { length: 22 }).primaryKey(),
@@ -458,7 +592,14 @@ export const user_settings = pgTable(`user_settings`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const user_payments = pgTable(`user_payments`, {
   user_payment_id: varchar('user_payment_id', { length: 22 }).primaryKey(),
@@ -472,7 +613,14 @@ export const user_payments = pgTable(`user_payments`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const tenant_colleges = pgTable(`tenant_colleges`, {
   college_id: varchar('college_id', { length: 22 }),
@@ -496,7 +644,14 @@ export const tenant_colleges = pgTable(`tenant_colleges`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 // Add missing countries and admin regions tables
 export const countries = pgTable(`countries`, {
@@ -554,7 +709,14 @@ export const audit_logs = pgTable(`audit_logs`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const sms_logs = pgTable(`sms_logs`, {
   sms_log_id: varchar('sms_log_id', { length: 22 }).primaryKey(),
@@ -570,7 +732,14 @@ export const sms_logs = pgTable(`sms_logs`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const email_logs = pgTable(`email_logs`, {
   email_log_id: varchar('email_log_id', { length: 22 }).primaryKey(),
@@ -586,7 +755,14 @@ export const email_logs = pgTable(`email_logs`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const whatsapp_logs = pgTable(`whatsapp_logs`, {
   whatsapp_log_id: varchar('whatsapp_log_id', { length: 22 }).primaryKey(),
@@ -602,7 +778,14 @@ export const whatsapp_logs = pgTable(`whatsapp_logs`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 // Add missing reference tables
 export const address_types = pgTable(`address_types`, {
@@ -708,7 +891,14 @@ export const college_campus_locations = pgTable(`college_campus_locations`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const signatures = pgTable(`signatures`, {
   signature_id: varchar('signature_id', { length: 22 }).primaryKey(),
@@ -727,7 +917,14 @@ export const signatures = pgTable(`signatures`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 // Add missing finance tables
 export const finance_banks = pgTable(`finance_banks`, {
@@ -745,7 +942,14 @@ export const finance_banks = pgTable(`finance_banks`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const finance_bank_accounts = pgTable(`finance_bank_accounts`, {
   bank_account_id: varchar('bank_account_id', { length: 22 }).primaryKey(),
@@ -766,7 +970,14 @@ export const finance_bank_accounts = pgTable(`finance_bank_accounts`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const finance_payments = pgTable(`finance_payments`, {
   payment_id: varchar('payment_id', { length: 22 }).primaryKey(),
@@ -780,7 +991,14 @@ export const finance_payments = pgTable(`finance_payments`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const finance_payment_types = pgTable(`finance_payment_types`, {
   payment_type_id: varchar('payment_type_id', { length: 22 }).primaryKey(),
@@ -793,7 +1011,14 @@ export const finance_payment_types = pgTable(`finance_payment_types`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const finance_payment_methods = pgTable(`finance_payment_methods`, {
   payment_method_id: varchar('payment_method_id', { length: 22 }).primaryKey(),
@@ -806,7 +1031,14 @@ export const finance_payment_methods = pgTable(`finance_payment_methods`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const finance_bank_pins = pgTable(`finance_bank_pins`, {
   payment_bank_ping_id: varchar('payment_bank_ping_id', { length: 22 }).primaryKey(),
@@ -829,7 +1061,14 @@ export const finance_bank_pins = pgTable(`finance_bank_pins`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const finance_bank_vouchers = pgTable(`finance_bank_vouchers`, {
   payment_bank_voucher_id: varchar('payment_bank_voucher_id', { length: 22 }).primaryKey(),
@@ -848,7 +1087,14 @@ export const finance_bank_vouchers = pgTable(`finance_bank_vouchers`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const finance_bank_pin_sales = pgTable(`finance_bank_pin_sales`, {
   bank_pin_sale_id: varchar('bank_pin_sale_id', { length: 22 }).primaryKey(),
@@ -867,7 +1113,14 @@ export const finance_bank_pin_sales = pgTable(`finance_bank_pin_sales`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const whatsapp_settings = pgTable(`whatsapp_settings`, {
   whatsapp_setting_id: varchar('whatsapp_setting_id', { length: 22 }),
@@ -877,7 +1130,14 @@ export const whatsapp_settings = pgTable(`whatsapp_settings`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const social_settings = pgTable(`social_settings`, {
   social_setting_id: varchar('social_setting_id', { length: 22 }),
@@ -891,7 +1151,14 @@ export const social_settings = pgTable(`social_settings`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const api_access_settings = pgTable(`api_access_settings`, {
   api_access_setting_id: varchar('api_access_setting_id', { length: 22 }),
@@ -901,7 +1168,14 @@ export const api_access_settings = pgTable(`api_access_settings`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const analytic_settings = pgTable(`analytic_settings`, {
   analytic_setting_id: varchar('analytic_setting_id', { length: 22 }),
@@ -913,7 +1187,14 @@ export const analytic_settings = pgTable(`analytic_settings`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 // Add missing faculty and department tables
 export const faculties = pgTable(`faculties`, {
@@ -927,7 +1208,14 @@ export const faculties = pgTable(`faculties`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 export const departments = pgTable(`departments`, {
   department_id: varchar('department_id', { length: 22 }).primaryKey(),
@@ -941,7 +1229,14 @@ export const departments = pgTable(`departments`, {
   created_on: timestamp('created_on').notNull().defaultNow(),
   modified_on: timestamp('modified_on').notNull().defaultNow(),
   modified_by: varchar('modified_by', { length: 80 }).notNull(),
-});
+}, (table) => ({
+  rls: true,
+  policies: [
+    pgPolicy('tenant_isolation', {
+      using: sql`tenant_id IS NOT NULL AND tenant_id = current_setting('app.current_tenant_id')::varchar`,
+    }),
+  ],
+}));
 
 // Relations
 export const tenants_relations = relations(tenants, ({ one }) => ({

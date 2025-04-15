@@ -1,0 +1,7 @@
+{
+  "tenant_id": "ten_xB2Ke9oMpQ4wLvYj",
+  "sms_authorization_endpoint": "https://api.africastalking.com/version1/messaging",
+  "sms_authorization_key": "auth_key_123xyz",
+  "sms_authorization_sender": "USL",
+  "sms_authorization_api_key": "api_key_456abc"
+}

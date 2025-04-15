@@ -2,15 +2,16 @@ import { Controller, Get, Post, Put, Patch, Delete, Body, Param, UseGuards, Quer
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { CreateUserDto, UserUpdateDto, CreateUserTypeDto, UpdateUserTypeDto } from './dto/user.dto';
+import { CreateUserDto, UserUpdateDto, CreateUserTypeDto, UpdateUserTypeDto,CreateUserSettingDto, UpdateUserSettingDto } from './dto/user.dto';
 import { ICurrentUser } from '../common/interfaces/current-user.interface';
 import { TenantContextGuard } from 'src/common/guards/tenant-context.guard';
 
 @ApiTags('Users')
 @Controller('users')
-@UseGuards(JwtAuthGuard, TenantContextGuard)
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -27,12 +28,14 @@ export class UsersController {
   }
 
   @Get()
-  @UseGuards(AdminGuard,TenantContextGuard)
+  @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all users' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ status: HttpStatus.OK, description: 'Users retrieved successfully' })
-  async findAll(@Query('page') page = 1, @Query('limit') limit = 10) {
-    return this.usersService.findAll(page, limit);
+  async findAll(@Query('page') page = 1, @Query('limit') limit = 10, @CurrentUser() currentUser: ICurrentUser) {
+    return this.usersService.findAll(page, limit,currentUser);
   }
 
   @Get(':user_id')
@@ -162,5 +165,46 @@ export class UsersController {
     @Query('roleName') roleName: string,
   ) {
     return this.usersService.findByRole(roleName);
+  }
+
+  @Post(':user_id/settings')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Create user setting' })
+  async createUserSetting(
+    @Param('user_id') user_id: string,
+    @Body() dto: CreateUserSettingDto,
+    @CurrentUser() currentUser: ICurrentUser
+  ) {
+    return this.usersService.createUserSetting(user_id, dto, currentUser);
+  }
+
+  @Get(':user_id/settings')
+  @UseGuards(JwtAuthGuard) 
+  @ApiOperation({ summary: 'Get user settings' })
+  async getUserSettings(@Param('user_id') user_id: string) {
+    return this.usersService.getUserSettings(user_id);
+  }
+
+  @Put(':user_id/settings/:setting_id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update user setting' })
+  async updateUserSetting(
+    @Param('user_id') user_id: string,
+    @Param('setting_id') setting_id: string, 
+    @Body() dto: UpdateUserSettingDto,
+    @CurrentUser() currentUser: ICurrentUser
+  ) {
+    return this.usersService.updateUserSetting(user_id, setting_id, dto, currentUser);
+  }
+
+  @Delete(':user_id/settings/:setting_id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Delete user setting' })
+  async deleteUserSetting(
+    @Param('user_id') user_id: string,
+    @Param('setting_id') setting_id: string,
+    @CurrentUser() currentUser: ICurrentUser
+  ) {
+    return this.usersService.deleteUserSetting(user_id, setting_id, currentUser);
   }
 }

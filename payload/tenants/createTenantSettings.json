@@ -1,0 +1,15 @@
+{
+  "tenant_id": "ten_xB2Ke9oMpQ4wLvYj",
+  "tenant_academic_year_id": "tay_xB2Ke9oMpQ4wLvYj",
+  "tenant_academic_semester_id": "tas_xB2Ke9oMpQ4wLvYj",
+  "branding_logo": "https://usl.edu.sl/logo.png",
+  "branding_neutal_color_background": "#EFF4FB",
+  "branding_neutal_color_sections": "#E2E8F0",
+  "branding_neutal_color_text": "#212B36",
+  "branding_primary_color": "#3C50E0",
+  "branding_secondary_color": "#DC3545",
+  "branding_accent_color": "#FFA500",
+  "timezone": "Africa/Freetown",
+  "language_code": "en-SL",
+  "currency": "SLE"
+}

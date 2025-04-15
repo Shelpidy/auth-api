@@ -6,32 +6,36 @@ import {
   Delete,
   Body,
   Param,
-  UseGuards,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
-import { CreateRoleDto,UpdateRoleDto } from './dto/role.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { AdminGuard } from '../auth/guards/admin.guard';
+import { CreateRoleDto, UpdateRoleDto } from './dto/role.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { ICurrentUser } from '../common/interfaces/current-user.interface';
-import { TenantContextGuard } from 'src/common/guards/tenant-context.guard';
+import { DatabaseService } from 'src/database/db.service';
+import { AdminGuard } from '../auth/guards/admin.guard';
 
 @ApiTags('Roles')
 @Controller('roles')
 @UseGuards(AdminGuard)
+@ApiBearerAuth()
 export class RolesController {
-  constructor(private readonly rolesService: RolesService) {}
+  constructor(
+    private readonly rolesService: RolesService,
+    private readonly databaseService: DatabaseService
+  ) {}
 
   @Get()
-  @UseGuards(TenantContextGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all roles' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Returns all roles successfully' })
-  async findAll() {
-    return this.rolesService.findAll();
+  async findAll(@CurrentUser() currentUser: ICurrentUser) {
+
+      return this.rolesService.findAll(currentUser);
+    
   }
 
   @Get(':role_id')
@@ -39,8 +43,8 @@ export class RolesController {
   @ApiOperation({ summary: 'Get role by ID' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Role found successfully' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Role not found' })
-  async findOne(@Param('role_id') role_id: string) {
-    return this.rolesService.findOne(role_id);
+  async findOne(@Param('role_id') role_id: string, @CurrentUser() currentUser: ICurrentUser) {
+      return this.rolesService.findOne(role_id,currentUser);
   }
 
   @Post()
@@ -56,7 +60,7 @@ export class RolesController {
   @ApiOperation({ summary: 'Update role' })
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Role updated successfully' })
   async update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto, @CurrentUser() currentUser: ICurrentUser) {
-    return this.rolesService.update(id, updateRoleDto, currentUser);
+    return this.rolesService.updateRole(id, updateRoleDto, currentUser);
   }
 
   @Delete(':id')

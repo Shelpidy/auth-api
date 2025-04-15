@@ -29,10 +29,4 @@
         # Prevent clickjacking
         X-Frame-Options "DENY"
     }
-
-    # Enable logging
-    log {
-        output file /var/log/caddy/access.log
-        format json
-    }
 }

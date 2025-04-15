@@ -23,9 +23,11 @@
     "push:test": "cross-env NODE_ENV=test drizzle-kit push && ts-node src/database/migrate-rls.ts",
     "studio": "drizzle-kit studio",
     "setup:dev": "bash scripts/setup.sh dev",
+    "setup:prod": "bash scripts/setup.sh prod",
     "setup:test": "bash scripts/setup.sh test",
     "seed": "ts-node scripts/seed.ts",
-    "rls":"ts-node src/database/migrate-rls.ts"
+    "rls":"ts-node src/database/migrate-rls.ts",
+    "rls:check":"ts-node src/database/check-rls.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

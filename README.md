@@ -224,6 +224,12 @@ npm run setup:dev
     docker-compose -f docker-compose.prod.yml down
     ```
 
+## Authentication Setup
+
+### Apple Sign-In
+1. Place your Apple private key file in `auth-keys/AuthKey_XXX.p8`
+2. Update the key ID, team ID and client ID in `src/config/auth.config.ts`
+
 ## Logging Configuration
 
 ### Logger Setup

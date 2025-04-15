@@ -1,8 +1,9 @@
-import { Controller, Post, Body, Patch, UseGuards, Req, Get, HttpStatus, HttpCode, Request } from '@nestjs/common';
+import { Controller, Post, Body, Patch, UseGuards, Req, Get, HttpStatus, HttpCode } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto, SignInDto, VerifyOtpDto, ResendOtpDto, NewPasswordDto, ForgotPasswordDto, RequestOtpDto} from './dto/auth.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { Request as ExpressRequest } from 'express';
 
 // Add interface for OAuth user
 interface OAuthRequest extends Request {
@@ -43,8 +44,11 @@ export class AuthController {
   @Post('signin')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Sign in and receive 2FA OTP' })
-  async signIn(@Body() dto: SignInDto) {
-    return this.authService.signIn(dto);
+  async signIn(@Body() dto: SignInDto, @Req() req: ExpressRequest) {
+    return this.authService.signIn({
+      ...dto,
+      ip: req.ip
+    });
   }
 
   @Post('forget-password')

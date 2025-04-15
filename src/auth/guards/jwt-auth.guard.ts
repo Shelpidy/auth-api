@@ -39,6 +39,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       const user = await this.db.query.users.findFirst({
         where: eq(schema.users.user_id, decoded.user_id),
         with: {
+          user_data: true,
           user_roles: {
             with: {
               role: true,
@@ -48,10 +49,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       });
 
       if (!user) {
-        throw new UnauthorizedException('Invalid token');
+        throw new UnauthorizedException('Invalid token, user not found');
       }
 
-      request.user = decoded;
+      request.user = {...user,...user.user_data};
 
       return true;
     } catch {

@@ -150,7 +150,7 @@ export class SignUpDto {
   @MinLength(3)
   username: string;
 
-  @ApiProperty({ example: 'john.doe@example.com', required: false })
+  @ApiProperty({ example: 'teaxmarkit@gmail.com', required: false })
   @IsOptional()
   @IsEmail()
   email?: string;
@@ -160,7 +160,7 @@ export class SignUpDto {
   @IsString()
   primary_phone?: string;
 
-  @ApiProperty({ example: 'Password123!' })
+  @ApiProperty({ example: 'teaxmarkit' })
   @IsString()
   @MinLength(6)
   password: string;
@@ -207,7 +207,7 @@ export class SignUpDto {
 }
 
 export class SignInDto {
-  @ApiProperty({ example: 'john.doe@example.com', required: false })
+  @ApiProperty({ example: 'teaxmarkit@gmail.com', required: false })
   @IsOptional()
   @IsEmail()
   email?: string;
@@ -217,14 +217,19 @@ export class SignInDto {
   @IsString()
   primary_phone?: string;
 
-  @ApiProperty({ example: 'Password123!' })
+  @ApiProperty({ example: 'teaxmarkit' })
   @IsString()
   @MinLength(6)
   password: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  ip?: string;
 }
 
 export class RequestOtpDto {
-  @ApiProperty({ example: 'john.doe@example.com', required: false })
+  @ApiProperty({ example: 'teaxmarkit@gmail.com', required: false })
   @IsOptional()
   @IsEmail()
   email?: string;
@@ -240,7 +245,7 @@ export class RequestOtpDto {
 }
 
 export class NewPasswordDto {
-  @ApiProperty({ example: 'john.doe@example.com', required: false })
+  @ApiProperty({ example: 'teaxmarkit@gmail.com', required: false })
   @IsOptional()
   @IsEmail()
   email?: string;
@@ -262,7 +267,7 @@ export class NewPasswordDto {
 }
 
 export class VerifyOtpDto {
-  @ApiProperty({ example: 'john.doe@example.com', required: false })
+  @ApiProperty({ example: 'teaxmarkit@gmail.com', required: false })
   @IsOptional()
   @IsEmail()
   email?: string;
@@ -279,7 +284,7 @@ export class VerifyOtpDto {
 }
 
 export class ResendOtpDto {
-  @ApiProperty({ example: 'john.doe@example.com', required: false })
+  @ApiProperty({ example: 'teaxmarkit@gmail.com', required: false })
   @IsOptional()
   @IsEmail()
   email?: string;
@@ -291,7 +296,7 @@ export class ResendOtpDto {
 }
 
 export class ForgotPasswordDto {
-  @ApiProperty({ example: 'john.doe@example.com', required: false })
+  @ApiProperty({ example: 'teaxmarkit@gmail.com', required: false })
   @IsOptional()
   @IsEmail()
   email?: string;

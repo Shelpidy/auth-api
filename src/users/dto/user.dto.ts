@@ -24,7 +24,7 @@ export class UserBaseDto {
   @IsString()
   username: string;
 
-  @ApiProperty({ example: 'john.doe@example.com' })
+  @ApiProperty({ example: 'teaxmarkit@gmail.com' })
   @IsEmail()
   email: string;
 
@@ -32,7 +32,7 @@ export class UserBaseDto {
   @IsString()
   primary_phone: string;
 
-  @ApiProperty({ example: 'Password123!' })
+  @ApiProperty({ example: 'teaxmarkit' })
   @IsString()
   password: string;
 
@@ -288,11 +288,18 @@ export class UsersByRoleDto {
 }
 
 export class UserLocationDto {
-  @ApiProperty({ description: 'Address line 1', example: '123 Main St' })
+  @ApiProperty({ 
+    example: '123 Main St',
+    description: 'Primary address line' 
+  })
   @IsString()
   address_line1: string;
 
-  @ApiProperty({ description: 'Address line 2', example: 'Apt 4B', required: false })
+  @ApiProperty({ 
+    example: 'Suite 100',
+    description: 'Secondary address line',
+    required: false 
+  })
   @IsOptional()
   @IsString()
   address_line2?: string;
@@ -343,11 +350,18 @@ export class CreateRoleDto {
 }
 
 export class CreateUserTypeDto {
-  @ApiProperty({ example: 'Student' })
+  @ApiProperty({ 
+    example: 'student',
+    description: 'Type identifier for the user' 
+  })
   @IsString()
   user_type_name: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ 
+    example: 'ten_123abc',
+    description: 'Associated tenant ID',
+    required: false 
+  })
   @IsOptional()
   @IsString()
   tenant_id?: string;
@@ -358,4 +372,31 @@ export class UpdateUserTypeDto {
   @IsOptional()
   @IsString()
   user_type_name?: string;
+}
+
+
+export class CreateUserSettingDto {
+  @ApiProperty()
+  @IsString()
+  module: string;
+
+  @ApiProperty() 
+  @IsString()
+  permission_name: string;
+
+  @ApiProperty()
+  @IsString()
+  permission_value: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean() 
+  serialized?: boolean;
+}
+
+export class UpdateUserSettingDto extends CreateUserSettingDto {
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  modified_by?: string;
 }

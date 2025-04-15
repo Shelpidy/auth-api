@@ -38,19 +38,28 @@ setup_environment() {
     if [ "$env" = "test" ]; then
         echo "Setting up test environment..."
         npm run push:test
+    elif [ "$env" = "prod" ]; then
+        echo "Setting up production environment..."
+        npm run push || {
+            echo "Schema push failed!"
+            exit 1
+        }
+        echo "Seeding production database..."
+        npm run seed || {
+            echo "Production seeding failed!"
+            exit 1
+        }
     else
         echo "Setting up development environment..."
         npm run push || {
-        echo "Schema push failed, but continuing..."
+            echo "Schema push failed, but continuing..."
         }
         echo "Seeding database..."
         npm run seed || {
-        echo "Seeding failed (possibly due to existing data), continuing..."
+            echo "Seeding failed (possibly due to existing data), continuing..."
         }
     fi
 }
-
-
 
 # Main script
 case "$1" in
@@ -66,8 +75,13 @@ case "$1" in
         setup_environment "dev"
         echo "Development environment is ready!"
         ;;
+    "prod")
+        check_docker
+        setup_environment "prod"
+        echo "Production environment is ready!"
+        ;;
     *)
-        echo "Usage: $0 {test|dev}"
+        echo "Usage: $0 {test|dev|prod}"
         exit 1
         ;;
 esac

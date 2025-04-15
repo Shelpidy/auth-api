@@ -8,10 +8,10 @@ export const CurrentUser = createParamDecorator(
     
     // Ensure all required fields are present
     return {
-      user_id: request.user.user_id,
-      email: request.user.email,
-      full_name: request.user.full_name,
-      tenant_id: request.user.tenant_id,
+      user_id: request.user?.user_id,
+      email: request.user?.email,
+      full_name: request.user?.full_name,
+      tenant_id: request.user?.tenant_id,
       roles: request.user.roles || [],
       ip
     };

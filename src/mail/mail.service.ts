@@ -14,7 +14,7 @@ export class MailService {
     email_smtp_password: process.env.SMTP_PASS,
     email_smtp_ssl_port: process.env.SMTP_PORT,
     email_smtp_tls_port: process.env.SMTP_PORT,
-    email_smtp_is_ssl: true,
+    email_smtp_is_ssl: false,
     email_smtp_is_tls: true,
     email_smtp_authentication: true,
     email_smtp_full_name: process.env.SMTP_FROM_NAME || 'System',
@@ -59,8 +59,8 @@ export class MailService {
   }) {
     const transporter = createTransport({
       host: emailSettings.email_smtp_server,
-      port: emailSettings.email_smtp_ssl_port,
-      secure: emailSettings.email_smtp_is_ssl,
+      port: parseInt(emailSettings.email_smtp_tls_port || emailSettings.email_smtp_ssl_port),
+      secure: emailSettings.email_smtp_tls_port?false:true,
       auth: {
         user: emailSettings.email_smtp_username,
         pass: emailSettings.email_smtp_password
@@ -68,12 +68,12 @@ export class MailService {
     });
 
     const messageData = {
-      from: emailSettings.email_smtp_full_name,
+      from:  emailSettings.email_smtp_username,
       to: email,
       subject: 'Your verification code',
       html: this.getOtpTemplate('Verify Your Account', otp)
     };
-
+  // console.log('messageData', messageData);
     await transporter.sendMail(messageData);
 
     if(context){

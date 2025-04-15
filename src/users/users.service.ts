@@ -6,12 +6,14 @@ import {
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../database/schema';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, and } from 'drizzle-orm';
 import {
   UserUpdateDto,
   CreateUserDto,
   CreateUserTypeDto,
   UpdateUserTypeDto,
+  CreateUserSettingDto, 
+  UpdateUserSettingDto
 } from './dto/user.dto';
 import { nanoid } from 'nanoid';
 import { AuditService } from '../common/services/audit.service';
@@ -32,42 +34,41 @@ export class UsersService {
     return userWithoutPassword;
   }
 
-  async findAll(page: number, limit: number) {
+  async findAll(page: number, limit: number,currentUser:ICurrentUser) {
     const offset = (page - 1) * limit;
+    const tenantId = currentUser.tenant_id || "";
+   
+    console.log("Tenant ID:", tenantId);
+    return await this.db.transaction(async (tx) => {
+      await tx.execute(sql`SELECT set_config('app.current_tenant_id', ${tenantId}, false)`);
+    
+      const [users, count] = await Promise.all([
+        tx.query.users.findMany({
+          limit,
+          offset,
+          where: eq(schema.users.is_deleted, false),
+        }),
+        tx.select({ count: sql<number>`count(*)` }).from(schema.users),
+      ]);
 
-    const [users, count] = await Promise.all([
-      this.db.query.users.findMany({
-        limit,
-        offset,
-        where: eq(schema.users.is_deleted, false),
-        with: {
-          user_data: true,
-          user_auth: true,
-          user_roles: {
-            with: {
-              role: true,
-            },
-          },
+      const totalItems = Number(count[0].count);
+      const totalPages = Math.ceil(totalItems / limit);
+      const currentPage = Math.floor(offset / limit) + 1;
+  
+      return {
+        data: users.map(user => this.excludePassword(user)),
+        metadata: {
+          currentPage,
+          limit,
+          totalItems,
+          totalPages,
+          hasNextPage: currentPage < totalPages,
+          hasPreviousPage: currentPage > 1,
         },
-      }),
-      this.db.select({ count: sql<number>`count(*)` }).from(schema.users),
-    ]);
+      };
+    });
+    
 
-    const totalItems = Number(count[0].count);
-    const totalPages = Math.ceil(totalItems / limit);
-    const currentPage = Math.floor(offset / limit) + 1;
-
-    return {
-      data: users.map(user => this.excludePassword(user)),
-      metadata: {
-        currentPage,
-        limit,
-        totalItems,
-        totalPages,
-        hasNextPage: currentPage < totalPages,
-        hasPreviousPage: currentPage > 1,
-      },
-    };
   }
 
   async findOne(user_id: string) {
@@ -319,14 +320,10 @@ export class UsersService {
       where: eq(schema.user_roles.user_id, user_id),
       with: {
         role: true,
-        user: true,
       },
     });
 
-    return userRoles.map(ur => ({
-      ...ur,
-      user: ur.user ? this.excludePassword(ur.user) : undefined
-    }));
+    return userRoles.map(ur => (ur.role));
   }
 
   async getUserPayments(user_id: string) {
@@ -518,5 +515,122 @@ export class UsersService {
       const { password, ...safeUser } = user;
       return safeUser;
     });
+  }
+
+  async createUserSetting(user_id: string, dto: CreateUserSettingDto, currentUser: ICurrentUser) {
+    const setting = await this.db.transaction(async (tx) => {
+      const [setting] = await tx.insert(schema.user_settings).values({
+        user_setting_id: `tpe${nanoid(19)}`,
+        user_id,
+        tenant_id: currentUser.tenant_id,
+        ...dto,
+        created_by: currentUser.full_name,
+        modified_by: currentUser.full_name
+      }).returning();
+
+      await this.auditService.logChange({
+        tenant_id: currentUser.tenant_id,
+        table_name: 'user_settings',
+        record_id: setting.user_setting_id,
+        action: 'CREATE',
+        new_data: setting,
+        changed_by: currentUser.full_name,
+        change_by_login_ip: currentUser.ip
+      });
+
+      return setting;
+    });
+
+    return {
+      message: 'User setting created successfully',
+      data: setting
+    };
+  }
+
+  async getUserSettings(user_id: string) {
+    const settings = await this.db.query.user_settings.findMany({
+      where: eq(schema.user_settings.user_id, user_id)
+    });
+    
+    return settings;
+  }
+
+  async updateUserSetting(
+    user_id: string,
+    setting_id: string,
+    dto: UpdateUserSettingDto,
+    currentUser: ICurrentUser
+  ) {
+    const setting = await this.db.transaction(async (tx) => {
+      const [oldSetting] = await tx
+        .select()
+        .from(schema.user_settings)
+        .where(and(
+          eq(schema.user_settings.user_id, user_id),
+          eq(schema.user_settings.user_setting_id, setting_id)
+        ));
+
+      if (!oldSetting) {
+        throw new NotFoundException('Setting not found');
+      }
+
+      const [setting] = await tx
+        .update(schema.user_settings)
+        .set({
+          ...dto,
+          modified_by: currentUser.full_name,
+          modified_on: new Date()
+        })
+        .where(and(
+          eq(schema.user_settings.user_id, user_id),
+          eq(schema.user_settings.user_setting_id, setting_id)
+        ))
+        .returning();
+
+      await this.auditService.logChange({
+        tenant_id: currentUser.tenant_id,
+        table_name: 'user_settings',
+        record_id: setting_id,
+        action: 'UPDATE',
+        old_data: oldSetting,
+        new_data: setting,
+        changed_by: currentUser.full_name,
+        change_by_login_ip: currentUser.ip
+      });
+
+      return setting;
+    });
+
+    return {
+      message: 'User setting updated successfully',
+      data: setting
+    };
+  }
+
+  async deleteUserSetting(user_id: string, setting_id: string, currentUser: ICurrentUser) {
+    const [setting] = await this.db
+      .delete(schema.user_settings)
+      .where(and(
+        eq(schema.user_settings.user_id, user_id),
+        eq(schema.user_settings.user_setting_id, setting_id)
+      ))
+      .returning();
+
+    if (!setting) {
+      throw new NotFoundException('Setting not found');
+    }
+
+    await this.auditService.logChange({
+      tenant_id: currentUser.tenant_id,
+      table_name: 'user_settings',
+      record_id: setting_id,
+      action: 'DELETE',
+      old_data: setting,
+      new_data: null,
+      changed_by: currentUser.full_name,
+      change_by_login_ip: currentUser.ip
+    });
+
+    return { message: 'User setting deleted successfully' };
   }
 }

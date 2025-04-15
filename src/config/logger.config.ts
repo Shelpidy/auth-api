@@ -3,6 +3,9 @@ import winston from 'winston';
 import 'winston-daily-rotate-file';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 export class CustomLogger implements LoggerService {
   private logger: winston.Logger;
@@ -15,6 +18,37 @@ export class CustomLogger implements LoggerService {
       fs.mkdirSync(logDir, { recursive: true });
     }
 
+    // Base transports for all environments
+    const transports: winston.transport[] = [
+      new winston.transports.DailyRotateFile({
+        filename: path.join(logDir, 'application-%DATE%.log'),
+        datePattern: 'YYYY-MM-DD',
+        zippedArchive: true,
+        maxSize: '20m',
+        maxFiles: '14d',
+      }) as any,
+      new winston.transports.DailyRotateFile({
+        filename: path.join(logDir, 'error-%DATE%.log'),
+        datePattern: 'YYYY-MM-DD',
+        level: 'error',
+        zippedArchive: true,
+        maxSize: '20m',
+        maxFiles: '14d',
+      }) as any,
+    ];
+
+    // Add console transport only in development
+    if (process.env.NODE_ENV !== 'production') {
+      transports.push(
+        new winston.transports.Console({
+          format: winston?.format?.combine(
+            winston.format.colorize(),
+            winston.format.simple(),
+          ),
+        })
+      );
+    }
+
     this.logger = winston.createLogger({
       level: 'info',
       format: winston?.format?.combine(
@@ -24,29 +58,7 @@ export class CustomLogger implements LoggerService {
         winston.format.errors({ stack: true }),
         winston.format.json(),
       ),
-      transports: [
-        new winston.transports.DailyRotateFile({
-          filename: path.join(logDir, 'application-%DATE%.log'),
-          datePattern: 'YYYY-MM-DD',
-          zippedArchive: true,
-          maxSize: '20m',
-          maxFiles: '14d',
-        }) as any,
-        new winston.transports.DailyRotateFile({
-          filename: path.join(logDir, 'error-%DATE%.log'),
-          datePattern: 'YYYY-MM-DD',
-          level: 'error',
-          zippedArchive: true,
-          maxSize: '20m',
-          maxFiles: '14d',
-        }) as any,
-        new winston.transports.Console({
-          format: winston?.format?.combine(
-            winston.format.colorize(),
-            winston.format.simple(),
-          ),
-        }),
-      ],
+      transports,
     });
   }
 

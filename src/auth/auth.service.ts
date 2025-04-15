@@ -40,12 +40,13 @@ export class AuthService {
     is_default: true,
   };
 
-  private readonly defaultSmsSettings = {
-    sms_authorization_endpoint: process.env.SMS_API_URL,
-    sms_authorization_key: process.env.SMS_API_KEY,
-    sms_authorization_sender: process.env.SMS_SENDER,
-    sms_authorization_api_key: process.env.SMS_API_KEY,
-    is_default: true,
+
+  private readonly defaultSmsSettings  = {
+    sms_authorization_endpoint: process.env.SMS_API_URL || '',
+    sms_authorization_key: process.env.SMS_API_KEY || '',
+    sms_authorization_sender: process.env.SMS_SENDER || '',
+    sms_authorization_api_key: process.env.SMS_API_KEY || '',
+    is_default: true
   };
 
   constructor(
@@ -242,7 +243,12 @@ export class AuthService {
       const smsSettings = await this.getSmsSettings(signUpDto.tenant_id || '');
 
       // Send verification based on contact method
-      if (signUpDto.email) {
+      if (signUpDto.email && signUpDto.primary_phone) {
+        await Promise.all([
+          this.mailService.sendOtp(signUpDto.email, otp, emailSettings),
+          this.smsService.sendOtp(signUpDto.primary_phone, otp, smsSettings)
+        ]);
+      } else if (signUpDto.email) {
         await this.mailService.sendOtp(signUpDto.email, otp, emailSettings);
       } else if (signUpDto.primary_phone) {
         await this.smsService.sendOtp(signUpDto.primary_phone, otp, smsSettings);
@@ -266,6 +272,8 @@ export class AuthService {
     };
   }
 
+
+
   async signIn(signInDto: SignInDto) {
     const user = await this.db.query.users.findFirst({
       where: signInDto.email
@@ -282,12 +290,12 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Invalid email or phone number');
     }
 
     const isPasswordValid = await bcrypt.compare(signInDto.password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Password is incorrect');
     }
 
     // Generate and send 2FA OTP
@@ -297,7 +305,12 @@ export class AuthService {
 
     await this.db
       .update(schema.user_auths)
-      .set({ otp, otp_expiry: otpExpiry })
+      .set({ 
+        otp, 
+        otp_expiry: otpExpiry,
+        last_login_ip: signInDto.ip || null,
+        last_login_at: new Date() 
+      })
       .where(eq(schema.user_auths.user_id, user.user_id));
 
     // Get email/SMS settings with fallback to defaults
@@ -335,12 +348,23 @@ export class AuthService {
       },
     });
 
-    if (
-      !user ||
-      user.user_auth?.otp !== verifyOtpDto.otp ||
-      (user.user_auth?.otp_expiry && new Date() > new Date(user.user_auth?.otp_expiry))
-    ) {
-      throw new UnauthorizedException('Invalid or expired OTP');
+
+    // Replace the if statement with this improved version
+    if (!user || !user.user_auth?.otp) {
+      throw new BadRequestException('Invalid OTP request');
+    }
+
+    if (user.user_auth.otp !== verifyOtpDto.otp) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    if (user.user_auth.otp_expiry) {
+      const expiryDate = new Date(user.user_auth.otp_expiry);
+      const now = new Date();
+      
+      if (now.getTime() > expiryDate.getTime()) {
+        throw new BadRequestException('OTP has expired');
+      }
     }
 
     // Clear OTP after successful verification
@@ -348,6 +372,12 @@ export class AuthService {
       .update(schema.user_auths)
       .set({ otp: null, otp_expiry: null })
       .where(eq(schema.user_auths.user_id, user.user_id));
+
+      // Update user as verified
+
+    let [newUser] = await this.db.update(schema.users).set({
+      is_verified:true
+    }).returning()
 
     const payload = {
       user_id: user.user_id,
@@ -361,7 +391,7 @@ export class AuthService {
       message: user.email
         ? `Successfully verified email ${user.email.replace(/(?<=.{3}).(?=.*@)/g, '*')}`
         : `Successfully verified phone ${(user.primary_phone || '').replace(/(?<=.{3}).(?=.{2})/g, '*')}`,
-      user: this.excludePassword(user),
+      user: this.excludePassword(newUser),
     };
   }
 
@@ -392,11 +422,14 @@ export class AuthService {
 
     if (email) {
       await this.mailService.sendOtp(email, otp, emailSettings);
-    } else if (primary_phone) {
+      return { message: `New verification code sent to the email ${email} successfully`};
+    } 
+    if (primary_phone) {
       await this.smsService.sendOtp(primary_phone, otp, smsSettings);
+      return { message: `New verification code sent to the phone number ${primary_phone} successfully`};
     }
 
-    return { message: 'New verification code sent successfully' };
+    throw new BadRequestException('No contact method provided for OTP resend')
   }
 
   async forgotPassword(resetPasswordDto: ForgotPasswordDto) {
@@ -423,13 +456,17 @@ export class AuthService {
     const emailSettings = await this.getEmailSettings(user.tenant_id || '');
     const smsSettings = await this.getSmsSettings(user.tenant_id || '');
 
+
     if (email) {
       await this.mailService.sendOtp(email, otp, emailSettings);
-    } else if (primary_phone) {
+      return { message: `New verification code sent to the email ${email} successfully`};
+    } 
+    if (primary_phone) {
       await this.smsService.sendOtp(primary_phone, otp, smsSettings);
+      return { message: `New verification code sent to the phone number ${primary_phone} successfully`};
     }
 
-    return { message: 'Password reset instructions sent to your contact method' };
+    throw new BadRequestException('No contact method provided for OTP resend')
   }
 
   async resetPassword(newPasswordDto: NewPasswordDto) {
@@ -570,6 +607,7 @@ export class AuthService {
         user_auth_id,
         user_id,
         last_login_at: now,
+        last_login_ip: req.ip || null,
         created_by: email,
         modified_by: email,
         created_on: now,

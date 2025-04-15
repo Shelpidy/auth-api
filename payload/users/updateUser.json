@@ -1,0 +1,22 @@
+{
+  "user": {
+    "display_name": "John M. Doe",
+    "nice_name": "johnmdoe",
+    "language_code": "en",
+    "timezone": "Africa/Freetown",
+    "photo": "https://example.com/new-photo.jpg",
+    "status": "active"
+  },
+  "user_data": {
+    "name_prefix": "Dr.",
+    "full_name": "John Michael Doe",
+    "first_name": "John",
+    "middle_name": "Michael",
+    "last_name": "Doe",
+    "secondary_phone": "+23276123458",
+    "secondary_email": "john.m.doe@example.com",
+    "demographic_marital_status": "Married",
+    "address_address_line1": "456 New Street",
+    "address_city": "Freetown"
+  }
+}

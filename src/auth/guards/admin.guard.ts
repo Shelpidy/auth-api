@@ -38,6 +38,7 @@ export class AdminGuard implements CanActivate {
       const user = await this.db.query.users.findFirst({
         where: eq(schema.users.user_id, decoded.user_id),
         with: {
+          user_data: true,
           user_roles: {
             with: {
               role: true,
@@ -47,7 +48,7 @@ export class AdminGuard implements CanActivate {
       });
 
       if (!user) {
-        throw new UnauthorizedException('Invalid token');
+        throw new UnauthorizedException('Invalid token, user not found');
       }
 
       const isUserAdmin = user.user_roles.some((ur) =>
@@ -58,7 +59,7 @@ export class AdminGuard implements CanActivate {
         throw new ForbiddenException('Forbidden: Admins only');
       }
 
-      request.user = decoded;
+      request.user = {...user,...user.user_data};
       return true;
     } catch (error) {
       if (error instanceof ForbiddenException) {

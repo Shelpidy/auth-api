@@ -17,7 +17,7 @@ import { TenantsService } from './tenants.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import {
   CreateTenantDto,
   UpdateTenantDto,
@@ -27,14 +27,16 @@ import {
   UpdateSmsSettingsDto,
   UpdateEmailSettingsDto,
   CreateTenantSettingsDto,
-  UpdateTenantSettingsDto
+  UpdateTenantSettingsDto,
+  CreateTenantAccountTypeDto,
+  UpdateTenantAccountTypeDto
 } from './dto/tenant.dto';
 import { ICurrentUser } from '../common/interfaces/current-user.interface';
 import { SuperAdminGuard } from 'src/auth/guards/super-admin.guard';
 
 @ApiTags('Tenants')
 @Controller('tenants')
-
+@ApiBearerAuth()
 export class TenantsController {
   constructor(private readonly tenantsService: TenantsService) {}
 
@@ -71,6 +73,8 @@ export class TenantsController {
   @Get()
   @UseGuards(SuperAdminGuard)
   @ApiOperation({ summary: 'Get all tenants' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ 
     status: HttpStatus.OK,
     description: 'Tenants retrieved successfully',
@@ -245,6 +249,7 @@ export class TenantsController {
   }
 
   @Delete(':tenant_id/contacts/:contact_id')
+  @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.NON_AUTHORITATIVE_INFORMATION) // 203
   @ApiOperation({ summary: 'Delete tenant contact' })
   @ApiResponse({ 
@@ -274,6 +279,7 @@ export class TenantsController {
 
   // Email settings endpoints
   @Post(':tenant_id/email-settings')
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Create email settings for tenant' })
   @ApiResponse({ 
     status: HttpStatus.CREATED,
@@ -294,6 +300,7 @@ export class TenantsController {
   }
 
   @Get(':tenant_id/email-settings')
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Get email settings for tenant' })
   @ApiResponse({ 
     status: HttpStatus.OK,
@@ -309,6 +316,7 @@ export class TenantsController {
   }
 
   @Put(':tenant_id/email-settings')
+  @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.ACCEPTED) // 202
   @ApiOperation({ summary: 'Update email settings for tenant' })
   @ApiResponse({ 
@@ -330,6 +338,7 @@ export class TenantsController {
   }
 
   @Delete(':tenant_id/email-settings')
+  @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.NON_AUTHORITATIVE_INFORMATION) // 203
   @ApiOperation({ summary: 'Delete email settings for tenant' })
   @ApiResponse({ 
@@ -359,6 +368,7 @@ export class TenantsController {
 
   // SMS settings endpoints  
   @Post(':tenant_id/sms-settings')
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Create SMS settings for tenant' })
   @ApiResponse({ 
     status: HttpStatus.CREATED,
@@ -379,6 +389,7 @@ export class TenantsController {
   }
 
   @Get(':tenant_id/sms-settings')
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Get SMS settings for tenant' })
   @ApiResponse({ 
     status: HttpStatus.OK,
@@ -394,6 +405,7 @@ export class TenantsController {
   }
 
   @Put(':tenant_id/sms-settings')
+  @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.ACCEPTED) // 202
   @ApiOperation({ summary: 'Update SMS settings for tenant' })
   @ApiResponse({ 
@@ -415,6 +427,7 @@ export class TenantsController {
   }
 
   @Delete(':tenant_id/sms-settings')
+  @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.NON_AUTHORITATIVE_INFORMATION) // 203
   @ApiOperation({ summary: 'Delete SMS settings for tenant' })
   @ApiResponse({ 
@@ -444,6 +457,7 @@ export class TenantsController {
 
   // Tenant settings endpoints
   @Post(':tenant_id/settings')
+  @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create tenant settings' })
   @ApiResponse({
@@ -466,6 +480,7 @@ export class TenantsController {
   }
 
   @Get(':tenant_id/settings')
+  @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get tenant settings' })
   @ApiResponse({
@@ -477,6 +492,7 @@ export class TenantsController {
   }
 
   @Put(':tenant_id/settings')
+  @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({ summary: 'Update tenant settings' })
   @ApiResponse({
@@ -498,6 +514,7 @@ export class TenantsController {
   }
 
   @Delete(':tenant_id/settings')
+  @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
   @ApiOperation({ summary: 'Delete tenant settings' })
   @ApiResponse({
@@ -518,6 +535,7 @@ export class TenantsController {
 
   // Status update endpoints
   @Patch(':tenant_id/status')
+  @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.ACCEPTED) // 202
   @ApiOperation({ summary: 'Update tenant status' })
   @ApiResponse({ 
@@ -538,6 +556,7 @@ export class TenantsController {
   }
 
   @Patch(':tenant_id/suspension')
+  @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.ACCEPTED) // 202
   @ApiOperation({ summary: 'Update tenant suspension status' })
   @ApiResponse({ 
@@ -558,13 +577,105 @@ export class TenantsController {
   }
 
   @Get('domain/:domain')
+  @UseGuards(AdminGuard)
   findByDomain(@Param('domain') domain: string) {
     return this.tenantsService.findByDomain(domain);
   }
 
   @Post(':tenant_id/welcome-email')
+  @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.CREATED) // 201
   sendWelcomeEmail(@Param('tenant_id') tenant_id: string) {
     return this.tenantsService.sendWelcomeEmail(tenant_id);
+  }
+
+  @Post('account-types')
+  @UseGuards(SuperAdminGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create tenant account type' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Tenant account type created successfully',
+    schema: {
+      properties: {
+        message: { type: 'string' },
+        data: { type: 'object' }
+      }
+    }
+  })
+  async createTenantAccountType(
+    @Body() dto: CreateTenantAccountTypeDto,
+    @CurrentUser() currentUser: ICurrentUser
+  ) {
+    return this.tenantsService.createTenantAccountType(dto, currentUser);
+  }
+
+  @Get('account-types')
+  @UseGuards(SuperAdminGuard)
+  @ApiOperation({ summary: 'Get all tenant account types' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Tenant account types retrieved successfully'
+  })
+  async getAllTenantAccountTypes(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10
+  ) {
+    return this.tenantsService.getAllTenantAccountTypes(page, limit);
+  }
+
+  @Get('account-types/:tenant_account_type_id')
+  @UseGuards(SuperAdminGuard)
+  @ApiOperation({ summary: 'Get tenant account type by ID' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Tenant account type retrieved successfully'
+  })
+  async getTenantAccountType(@Param('tenant_account_type_id') tenant_account_type_id: string) {
+    return this.tenantsService.getTenantAccountType(tenant_account_type_id);
+  }
+
+  @Put('account-types/:tenant_account_type_id')
+  @UseGuards(SuperAdminGuard)
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({ summary: 'Update tenant account type' })
+  @ApiResponse({
+    status: HttpStatus.ACCEPTED,
+    description: 'Tenant account type updated successfully',
+    schema: {
+      properties: {
+        message: { type: 'string' },
+        data: { type: 'object' }
+      }
+    }
+  })
+  async updateTenantAccountType(
+    @Param('tenant_account_type_id') tenant_account_type_id: string,
+    @Body() dto: UpdateTenantAccountTypeDto,
+    @CurrentUser() currentUser: ICurrentUser
+  ) {
+    return this.tenantsService.updateTenantAccountType(tenant_account_type_id, dto, currentUser);
+  }
+
+  @Delete('account-types/:tenant_account_type_id')
+  @UseGuards(SuperAdminGuard)
+  @HttpCode(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
+  @ApiOperation({ summary: 'Delete tenant account type' })
+  @ApiResponse({
+    status: HttpStatus.NON_AUTHORITATIVE_INFORMATION,
+    description: 'Tenant account type deleted successfully',
+    schema: {
+      properties: {
+        message: { type: 'string' }
+      }
+    }
+  })
+  async deleteTenantAccountType(
+    @Param('tenant_account_type_id') tenant_account_type_id: string,
+    @CurrentUser() currentUser: ICurrentUser
+  ) {
+    return this.tenantsService.deleteTenantAccountType(tenant_account_type_id, currentUser);
   }
 }

@@ -17,7 +17,9 @@ import {
   UpdateSmsSettingsDto,
   CreateContactDto,
   CreateTenantSettingsDto,
-  UpdateTenantSettingsDto
+  UpdateTenantSettingsDto,
+  CreateTenantAccountTypeDto,
+  UpdateTenantAccountTypeDto
 } from './dto/tenant.dto';
 import { ApiResponse } from '../common/interfaces/api-response.interface';
 import { ICurrentUser } from '../common/interfaces/current-user.interface';
@@ -619,6 +621,7 @@ export class TenantsService {
       email_setting_id: `tpe${nanoid(19)}`,
       ...dto,
       tenant_id,
+      
       created_by: currentUser.full_name,
       modified_by: currentUser.full_name
     }).returning();
@@ -673,7 +676,7 @@ export class TenantsService {
     await this.auditService.logChange({
       tenant_id: currentUser.tenant_id,
       table_name: 'email_settings',
-      record_id: settings.email_setting_id || "",
+      record_id: settings?.email_setting_id || "",
       action: 'UPDATE',
       old_data: null,
       new_data: settings,
@@ -1241,5 +1244,137 @@ export class TenantsService {
     });
 
     return { message: 'Tenant settings deleted successfully' };
+  }
+
+  async createTenantAccountType(dto: CreateTenantAccountTypeDto, currentUser: ICurrentUser): Promise<ApiResponse<any>> {
+    const [accountType] = await this.db.insert(schema.tenant_account_types).values({
+      tenant_account_type_id: `tat${nanoid(19)}`,
+      name: dto.name,
+      created_by: currentUser.full_name,
+      modified_by: currentUser.full_name
+    }).returning();
+
+    await this.auditService.logChange({
+      tenant_id: currentUser.tenant_id,
+      table_name: 'tenant_account_types',
+      record_id: accountType.tenant_account_type_id,
+      action: 'CREATE',
+      new_data: accountType,
+      changed_by: currentUser.full_name,
+      change_by_login_ip: currentUser.ip
+    });
+
+    return {
+      message: 'Tenant account type created successfully',
+      data: accountType
+    };
+  }
+
+  async getTenantAccountType(tenant_account_type_id: string) {
+    const accountType = await this.db.query.tenant_account_types.findFirst({
+      where: eq(schema.tenant_account_types.tenant_account_type_id, tenant_account_type_id)
+    });
+
+    if (!accountType) {
+      throw new NotFoundException('Tenant account type not found');
+    }
+
+    return accountType;
+  }
+
+  async getAllTenantAccountTypes(page: number, limit: number) {
+    const offset = (page - 1) * limit;
+
+    const [accountTypes, count] = await Promise.all([
+      this.db.query.tenant_account_types.findMany({
+        limit,
+        offset,
+        orderBy: [schema.tenant_account_types.name]
+      }),
+      this.db.select({ count: sql<number>`count(*)` }).from(schema.tenant_account_types)
+    ]);
+
+    const totalItems = Number(count[0].count);
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return {
+      data: accountTypes,
+      metadata: {
+        currentPage: page,
+        itemsPerPage: limit,
+        totalItems,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    };
+  }
+
+  async updateTenantAccountType(
+    tenant_account_type_id: string,
+    dto: UpdateTenantAccountTypeDto,
+    currentUser: ICurrentUser
+  ): Promise<ApiResponse<any>> {
+    const [accountType] = await this.db
+      .update(schema.tenant_account_types)
+      .set({
+        name: dto.name,
+        modified_by: currentUser.full_name,
+        modified_on: new Date()
+      })
+      .where(eq(schema.tenant_account_types.tenant_account_type_id, tenant_account_type_id))
+      .returning();
+
+    if (!accountType) {
+      throw new NotFoundException('Tenant account type not found');
+    }
+
+    await this.auditService.logChange({
+      tenant_id: currentUser.tenant_id,
+      table_name: 'tenant_account_types',
+      record_id: tenant_account_type_id,
+      action: 'UPDATE',
+      new_data: accountType,
+      changed_by: currentUser.full_name,
+      change_by_login_ip: currentUser.ip
+    });
+
+    return {
+      message: 'Tenant account type updated successfully',
+      data: accountType
+    };
+  }
+
+  async deleteTenantAccountType(tenant_account_type_id: string, currentUser: ICurrentUser) {
+    // Check if the account type is being used by any tenants
+    const tenantsUsingType = await this.db.query.tenants.findFirst({
+      where: eq(schema.tenants.tenant_account_type_id, tenant_account_type_id)
+    });
+
+    if (tenantsUsingType) {
+      throw new ConflictException('Cannot delete account type that is being used by tenants');
+    }
+
+    const [accountType] = await this.db
+      .delete(schema.tenant_account_types)
+      .where(eq(schema.tenant_account_types.tenant_account_type_id, tenant_account_type_id))
+      .returning();
+
+    if (!accountType) {
+      throw new NotFoundException('Tenant account type not found');
+    }
+
+    await this.auditService.logChange({
+      tenant_id: currentUser.tenant_id,
+      table_name: 'tenant_account_types',
+      record_id: tenant_account_type_id,
+      action: 'DELETE',
+      old_data: accountType,
+      new_data: null,
+      changed_by: currentUser.full_name,
+      change_by_login_ip: currentUser.ip
+    });
+
+    return { message: 'Tenant account type deleted successfully' };
   }
 }

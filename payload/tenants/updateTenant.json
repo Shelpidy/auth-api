@@ -1,0 +1,28 @@
+{
+  "tenant_name": "university-of-sierra-leone-updated",
+  "tenant_owner_name": "Jane Doe",
+  "tenant_owner_email": "jane.doe@usl.edu.sl",
+  "tenant_owner_phone": "+23276543211",
+  "domain": "usl.edu.sl",
+  "status": true,
+  "tenant_data": {
+    "long_name": "University of Sierra Leone - Updated",
+    "description": "The oldest and most prestigious university in West Africa",
+    "website": "https://www.usl.edu.sl"
+  },
+  "contact": {
+    "contact_type": "Primary",
+    "Contact_name": "Administrative Office",
+    "email": {
+      "tenant_main_email": "admin@usl.edu.sl"
+    },
+    "phone": {
+      "tenant_main_phone": "+23276123457"
+    },
+    "address": {
+      "address_address_line1": "New Mount Aureol Campus",
+      "address_postal_code": "10102"
+    }
+  },
+  "modified_by": "usr_xB2Ke9oMpQ4wLvYj"
+}

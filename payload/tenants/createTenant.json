@@ -1,0 +1,71 @@
+{
+  "tenant_account_type_id": "tat_xB2Ke9oMpQ4wLvYj",
+  "tenant_name": "university-of-sierra-leone",
+  "tenant_owner_name": "John Doe",
+  "tenant_owner_email": "john.doe@usl.edu.sl",
+  "tenant_owner_phone": "+23276543210",
+  "tenant_subscription_id": "tsu_aB9cD2eF4gH6iJ8k",
+  "tenant_user_id": "usr_xB2Ke9oMpQ4wLvYj",
+  "domain": "usl.edu.sl",
+  "tenant_data": {
+    "long_name": "University of Sierra Leone",
+    "legal_name": "USL Limited",
+    "government_registration_id": "REG123456",
+    "government_alternate_registration_id": "ALT123456",
+    "education_category": "Higher Education",
+    "education_classification": "Public University",
+    "education_affiliation": "Ministry of Education",
+    "education_association": "African Universities Association",
+    "education_lowest_grade_level": "Undergraduate",
+    "education_highest_grade_level": "Postgraduate",
+    "date_founded": "1827-02-24",
+    "description": "The oldest university in West Africa",
+    "website": "https://usl.edu.sl"
+  },
+  "contact": {
+    "contact_type": "Primary",
+    "Contact_name": "Main Office",
+    "first_name": "John",
+    "middle_name": "Michael",
+    "last_name": "Doe",
+    "designation": "Registrar",
+    "gender": "Male",
+    "company_name": "University of Sierra Leone",
+    "is_primary_contact": true,
+    "is_billing_contact": true,
+    "is_registrar_contact": true,
+    "is_finance_contact": false,
+    "is_vc_contact": false,
+    "Status": "Active",
+    "comment": "Main administrative contact",
+    "email": {
+      "email_type": "Primary",
+      "email_name": "Main Contact",
+      "tenant_main_email": "info@usl.edu.sl"
+    },
+    "phone": {
+      "phone_type": "Office",
+      "phone_name": "Main Line",
+      "tenant_main_phone": "+23276123456"
+    },
+    "address": {
+      "address_type": "Main Campus",
+      "address_name": "Headquarters",
+      "address_country": "Sierra Leone",
+      "address_state": "Western Area",
+      "address_region": "Western Area Urban",
+      "address_district": "Freetown",
+      "address_address_line1": "Mount Aureol",
+      "address_address_line2": "University House",
+      "address_city": "Freetown",
+      "address_postal_code": "10101",
+      "address_latitude": 8.484444,
+      "address_longitude": -13.234444
+    },
+    "social": {
+      "social_type": "Facebook",
+      "social_name": "USL Facebook Page",
+      "social_link": "https://facebook.com/usl"
+    }
+  }
+}

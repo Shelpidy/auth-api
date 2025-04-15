@@ -1,0 +1,13 @@
+{
+  "tenant_id": "ten_xB2Ke9oMpQ4wLvYj",
+  "email_smtp_server": "smtp.gmail.com",
+  "email_smtp_email": "noreply@usl.edu.sl",
+  "email_smtp_username": "smtp_user",
+  "email_smtp_password": "smtp_pass_123",
+  "email_smtp_ssl_port": "465",
+  "email_smtp_tls_port": "587",
+  "email_smtp_is_ssl": true,
+  "email_smtp_is_tls": true,
+  "email_smtp_authentication": true,
+  "email_smtp_full_name": "University of Sierra Leone"
+}

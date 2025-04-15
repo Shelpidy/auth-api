@@ -29,6 +29,53 @@ const nanoid = ()=> {
 }
 async function main() {
   try {
+    // Create super-admin role first (without tenant association)
+    const [superAdminRole] = await db.insert(schema.roles)
+      .values({
+        role_id: 'tpe' + nanoid(),
+        tenant_id: null, // No tenant association
+        name: 'super-admin',
+        created_by: 'system',
+        modified_by: 'system'
+      })
+      .returning();
+
+    // Create super admin user
+    const [superAdminUser] = await db.insert(schema.users)
+      .values({
+        user_id: 'tpe' + nanoid(),
+        tenant_id: null, // No tenant association
+        username: 'superadmin',
+        email: 'teaxmarkit@gmail.com',
+        primary_phone: '+23276000000',
+        password: await hashPassword('teaxmarkit'),
+        is_verified: true,
+        created_by: 'system',
+        modified_by: 'system'
+      })
+      .returning();
+
+    // Assign super-admin role
+    await db.insert(schema.user_roles)
+      .values({
+        user_role_id: 'tpe' + nanoid(),
+        role_id: superAdminRole.role_id,
+        user_id: superAdminUser.user_id,
+        tenant_id: null, // No tenant association
+        created_by: 'system',
+        modified_by: 'system'
+      });
+
+    // Create user_auth record for super admin
+    await db.insert(schema.user_auths)
+      .values({
+        user_auth_id: 'tpe' + nanoid(),
+        user_id: superAdminUser.user_id,
+        tenant_id: null, // No tenant association
+        created_by: 'system',
+        modified_by: 'system'
+      });
+
     // Create account type
     const [accountType] = await db.insert(schema.tenant_account_types)
       .values({
@@ -39,248 +86,192 @@ async function main() {
       })
       .returning();
 
-
-    // Create tenant
-    const [tenant] = await db.insert(schema.tenants)
+    // Create first tenant
+    const [tenant1] = await db.insert(schema.tenants)
       .values({
         tenant_id: 'tpe' + nanoid(),
         tenant_account_type_id: accountType.tenant_account_type_id,
-        tenant_name: 'Demo Institution',
+        tenant_name: 'Demo Institution 1',
         tenant_owner_name: 'John Doe',
-        tenant_owner_email: 'john.doe@demo.edu',
+        tenant_owner_email: 'john.doe@demo1.edu',
         tenant_owner_phone: '+23276543210',
-        tenant_user_id: 'tpe' + nanoid(), // Will be updated after user creation
+        tenant_user_id: 'tpe' + nanoid(),
         status: true,
         created_by: 'system',
         modified_by: 'system'
       })
       .returning();
 
-    // Create tenant data
-    const [tenantData] = await db.insert(schema.tenant_data)
+    // Create second tenant  
+    const [tenant2] = await db.insert(schema.tenants)
       .values({
-        tenant_data_id: 'tpe' + nanoid(),
-        tenant_id: tenant.tenant_id,
-        long_name: 'Demo International Institution',
-        legal_name: 'Demo International Institution Ltd',
-        education_category: 'Higher Education',
-        education_lowest_grade_level: 'Year 1',
-        education_highest_grade_level: 'Year 4',
-        date_founded: new Date('2023-01-01').toISOString(),
-        description: 'A premier educational institution',
-        website: 'https://demo.edu',
+        tenant_id: 'tpe' + nanoid(),
+        tenant_account_type_id: accountType.tenant_account_type_id,
+        tenant_name: 'Demo Institution 2',
+        tenant_owner_name: 'Jane Smith',
+        tenant_owner_email: 'jane.smith@demo2.edu', 
+        tenant_owner_phone: '+23276543211',
+        tenant_user_id: 'tpe' + nanoid(),
+        status: true,
         created_by: 'system',
         modified_by: 'system'
       })
       .returning();
 
-    // Create contacts for tenant
-    const [contactEmail] = await db.insert(schema.contacts_email)
-      .values({
-        contact_email_id: 'tpe' + nanoid(),
-        tenant_id: tenant.tenant_id,
-        email_type: 'Primary',
-        email_name: 'Main Contact',
-        tenant_main_email: 'contact@demo.edu',
-        created_by: 'system',
-        modified_by: 'system'
-      })
-      .returning();
+    // Create roles for both tenants
+    const createRoles = async (tenantId: string) => {
+      const [adminRole] = await db.insert(schema.roles)
+        .values({
+          role_id: 'tpe' + nanoid(),
+          tenant_id: tenantId,
+          name: 'admin',
+          created_by: 'system',
+          modified_by: 'system'
+        })
+        .returning();
 
-    const [contactPhone] = await db.insert(schema.contacts_phone)
-      .values({
-        contact_phone_id: 'tpe' + nanoid(),
-        tenant_id: tenant.tenant_id,
-        phone_type: 'Office',
-        phone_name: 'Main Office',
-        tenant_main_phone: '+23276123456',
-        created_by: 'system',
-        modified_by: 'system'
-      })
-      .returning();
+      const [authenticatedRole] = await db.insert(schema.roles)
+        .values({
+          role_id: 'tpe' + nanoid(),
+          tenant_id: tenantId,
+          name: 'authenticated',
+          created_by: 'system',
+          modified_by: 'system'
+        })
+        .returning();
 
-    const [contactAddress] = await db.insert(schema.contacts_address)
-      .values({
-        contact_address_id: 'tpe' + nanoid(),
-        tenant_id: tenant.tenant_id,
-        address_type: 'Main Campus',
-        address_name: 'Main Office',
-        address_country: 'Sierra Leone',
-        address_state: 'Western Area',
-        address_city: 'Freetown',
-        address_address_line1: '123 Education Street',
-        created_by: 'system',
-        modified_by: 'system'
-      })
-      .returning();
+      return { adminRole, authenticatedRole };
+    };
 
-    const [contactSocial] = await db.insert(schema.contacts_social)
-      .values({
-        contact_social_id: 'tpe' + nanoid(),
-        tenant_id: tenant.tenant_id,
-        social_type: 'Website',
-        social_name: 'Official Website',
-        social_link: 'https://demo.edu',
-        created_by: 'system',
-        modified_by: 'system'
-      })
-      .returning();
+    const tenantRoles = await createRoles(tenant1.tenant_id);
 
-    // Create main contact record
-    await db.insert(schema.contacts)
-      .values({
-        contact_id: 'tpe' + nanoid(),
-        tenant_id: tenant.tenant_id,
-        contact_type: 'Institution',
-        Contact_name: 'Main Office',
-        contact_email_id: contactEmail.contact_email_id,
-        contact_phone_id: contactPhone.contact_phone_id,
-        contact_address_id: contactAddress.contact_address_id,
-        contact_social_id: contactSocial.contact_social_id,
-        is_primary_contact: true,
-        created_by: 'system',
-        modified_by: 'system'
-      });
-
-    // Create user type
-    const [userType] = await db.insert(schema.user_types)
-      .values({
-        user_type_id: 'tpe' + nanoid(),
-        user_type_name: 'Administrator',
-        created_by: 'system',
-        modified_by: 'system'
-      })
-      .returning();
-
-    // Create admin user
-    const [adminUser] = await db.insert(schema.users)
+    // Create users for first tenant
+    const [tenant1AdminUser] = await db.insert(schema.users)
       .values({
         user_id: 'tpe' + nanoid(),
-        tenant_id: tenant.tenant_id,
-        user_type_id: userType.user_type_id,
-        username: 'admin',
-        email: 'admin@example.com',
+        tenant_id: tenant1.tenant_id,
+        username: 'admin1',
+        email: 'admin@demo1.edu',
         primary_phone: '+23276987654',
-        password: await hashPassword('admin@123'),
+        password: await hashPassword('admin123'),
         is_verified: true,
         created_by: 'system',
         modified_by: 'system'
       })
       .returning();
 
-    // Update tenant with admin user id
-    await db.update(schema.tenants)
-      .set({ tenant_user_id: adminUser.user_id })
-      .where(eq(schema.tenants.tenant_id, tenant.tenant_id));
-
-    // Create user data for admin
-    await db.insert(schema.user_data)
+    const [tenant1RegularUser] = await db.insert(schema.users)
       .values({
-        user_data_id: 'tpe' + nanoid(),
-        user_id: adminUser.user_id,
-        tenant_id: tenant.tenant_id,
-        full_name: 'System Administrator',
-        first_name: 'System',
-        last_name: 'Administrator',
+        user_id: 'tpe' + nanoid(),
+        tenant_id: tenant1.tenant_id,
+        username: 'user1',
+        email: 'user@demo1.edu',
+        primary_phone: '+23276987655',
+        password: await hashPassword('user123'),
+        is_verified: true,
         created_by: 'system',
         modified_by: 'system'
-      });
+      })
+      .returning();
 
-    // Create user auth record
+    // Create users for second tenant
+    const [tenant2AdminUser] = await db.insert(schema.users)
+      .values({
+        user_id: 'tpe' + nanoid(),
+        tenant_id: tenant2.tenant_id,
+        username: 'admin2',
+        email: 'admin@demo2.edu',
+        primary_phone: '+23276987656',
+        password: await hashPassword('admin123'),
+        is_verified: true,
+        created_by: 'system',
+        modified_by: 'system'
+      })
+      .returning();
+
+    const [tenant2RegularUser] = await db.insert(schema.users)
+      .values({
+        user_id: 'tpe' + nanoid(),
+        tenant_id: tenant2.tenant_id,
+        username: 'user2', 
+        email: 'user@demo2.edu',
+        primary_phone: '+23276987657',
+        password: await hashPassword('user123'),
+        is_verified: true,
+        created_by: 'system',
+        modified_by: 'system'
+      })
+      .returning();
+
+    // Assign roles to users
+    const assignRole = async (userId: string, roleId: string, tenantId: string) => {
+      await db.insert(schema.user_roles)
+        .values({
+          user_role_id: 'tpe' + nanoid(),
+          role_id: roleId,
+          user_id: userId,
+          tenant_id: tenantId,
+          created_by: 'system',
+          modified_by: 'system'
+        });
+    };
+
+    // Assign roles for tenant 1 users
+    await assignRole(tenant1AdminUser.user_id, tenantRoles.adminRole.role_id || "", tenant1.tenant_id);
+    await assignRole(tenant1RegularUser.user_id, tenantRoles.authenticatedRole.role_id || "", tenant1.tenant_id);
+
+    // Assign roles for tenant 2 users
+    await assignRole(tenant2AdminUser.user_id, tenantRoles.adminRole.role_id || "", tenant2.tenant_id);
+    await assignRole(tenant2RegularUser.user_id, tenantRoles.authenticatedRole.role_id || "", tenant2.tenant_id);
+
+    // Update tenants with admin user ids
+    await db.update(schema.tenants)
+      .set({ tenant_user_id: tenant1AdminUser.user_id })
+      .where(eq(schema.tenants.tenant_id, tenant1.tenant_id));
+
+    await db.update(schema.tenants)
+      .set({ tenant_user_id: tenant2AdminUser.user_id })
+      .where(eq(schema.tenants.tenant_id, tenant2.tenant_id));
+
+    // Create user_auth record for tenant1AdminUser
     await db.insert(schema.user_auths)
       .values({
         user_auth_id: 'tpe' + nanoid(),
-        user_id: adminUser.user_id,
-        tenant_id: tenant.tenant_id,
+        user_id: tenant1AdminUser.user_id,
+        tenant_id: tenant1.tenant_id,
         created_by: 'system',
         modified_by: 'system'
       });
 
-    // Create roles
-    const [adminRole] = await db.insert(schema.roles)
+    // Create user_auth record for tenant1RegularUser
+    await db.insert(schema.user_auths)
       .values({
-        role_id: 'tpe' + nanoid(),
-        tenant_id: tenant.tenant_id,
-        name: 'admin',
-        created_by: 'system',
-        modified_by: 'system'
-      })
-      .returning();
-    
-
-    // Assign role to admin user
-    await db.insert(schema.user_roles)
-      .values({
-        user_role_id: 'tpe' + nanoid(),
-        role_id: adminRole.role_id,
-        user_id: adminUser.user_id,
-        tenant_id: tenant.tenant_id,
+        user_auth_id: 'tpe' + nanoid(),
+        user_id: tenant1RegularUser.user_id,
+        tenant_id: tenant1.tenant_id,
         created_by: 'system',
         modified_by: 'system'
       });
 
-    // Create super admin role
-    const role_id = `tpe${nanoid()}`;
-    const [superAdminRole] = await db
-      .insert(schema.roles)
+    // Create user_auth record for tenant2AdminUser
+    await db.insert(schema.user_auths)
       .values({
-        role_id,
-        name: 'super-admin',
+        user_auth_id: 'tpe' + nanoid(),
+        user_id: tenant2AdminUser.user_id,
+        tenant_id: tenant2.tenant_id,
         created_by: 'system',
-        modified_by: 'system',
-      })
-      .returning();
+        modified_by: 'system'
+      });
 
-    // Create tenant super admin user
-    const tenantSuperAdminId = `tpe${nanoid()}`;
-    const hashedPassword = await bcrypt.hash('superadmin123', 10);
-    
-    const [tenantSuperAdmin] = await db
-      .insert(schema.users)
+    // Create user_auth record for tenant2RegularUser
+    await db.insert(schema.user_auths)
       .values({
-        user_id: tenantSuperAdminId,
-        email: 'tenant.admin@example.com',
-        password: hashedPassword,
-        display_name: 'Tenant Super Admin',
-        tenant_id: 'your_tenant_id', // Replace with actual tenant ID
+        user_auth_id: 'tpe' + nanoid(),
+        user_id: tenant2RegularUser.user_id,
+        tenant_id: tenant2.tenant_id,
         created_by: 'system',
-        modified_by: 'system',
-      })
-      .returning();
-
-    // Create non-tenant super admin user
-    const globalSuperAdminId = `tpe${nanoid()}`;
-    const [globalSuperAdmin] = await db
-      .insert(schema.users)
-      .values({
-        user_id: globalSuperAdminId,
-        email: 'superadmin@example.com',
-        password: hashedPassword,
-        display_name: 'Global Super Admin',
-        tenant_id: null, // No tenant association
-        created_by: 'system',
-        modified_by: 'system',
-      })
-      .returning();
-
-    // Assign role to tenant super admin
-    await db.insert(schema.user_roles).values({
-      user_role_id: `tpe${nanoid()}`,
-      user_id: tenantSuperAdminId,
-      role_id: role_id,
-      created_by: 'system',
-      modified_by: 'system',
-    });
-
-    // Assign role to global super admin
-    await db.insert(schema.user_roles).values({
-      user_role_id: `tpe${nanoid()}`,
-      user_id: globalSuperAdminId,
-      role_id: role_id,
-      tenant_id: null, // No tenant association
-      created_by: 'system',
-      modified_by: 'system',
-    });
+        modified_by: 'system'
+      });
 
     console.log('Database seeded successfully');
     process.exit(0);

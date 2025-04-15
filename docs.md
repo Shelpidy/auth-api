@@ -238,7 +238,7 @@ All endpoints are prefixed with `/api` as configured in `main.ts`.
   ```json
   {
     "username": "johndoe",
-    "email": "john.doe@example.com",
+    "email": "teaxmarkit@gmail.com",
     "password": "secret123",
     "photo": "https://example.com/photo.jpg",
     "tenant_nano_id": "tenant123",
@@ -284,7 +284,7 @@ All endpoints are prefixed with `/api` as configured in `main.ts`.
       "display_name": "John Doe",
       "nick_name": "JD",
       "username": "johndoe",
-      "email": "john.doe@example.com",
+      "email": "teaxmarkit@gmail.com",
       "password_status": "active",
       "status": "active",
       "photo": "https://example.com/photo.jpg",
@@ -356,7 +356,7 @@ All endpoints are prefixed with `/api` as configured in `main.ts`.
   *Request Body:*  
   ```json
   {
-    "email": "john.doe@example.com",
+    "email": "teaxmarkit@gmail.com",
     "password": "secret123"
   }
   ```  
@@ -374,7 +374,7 @@ All endpoints are prefixed with `/api` as configured in `main.ts`.
       "display_name": "John Doe",
       "nick_name": "JD",
       "username": "johndoe",
-      "email": "john.doe@example.com",
+      "email": "teaxmarkit@gmail.com",
       "password_status": "active",
       "status": "active",
       "photo": "https://example.com/photo.jpg",
@@ -476,7 +476,7 @@ All endpoints are prefixed with `/api` as configured in `main.ts`.
   *Request Body:*  
   ```json
   {
-    "email": "john.doe@example.com",
+    "email": "teaxmarkit@gmail.com",
     "otp": "123456"
   }
   ```  
@@ -512,7 +512,7 @@ All endpoints are prefixed with `/api` as configured in `main.ts`.
   *Request Body:*  
   ```json
   {
-    "email": "john.doe@example.com"
+    "email": "teaxmarkit@gmail.com"
   }
   ```  
 
@@ -547,7 +547,7 @@ All endpoints are prefixed with `/api` as configured in `main.ts`.
   *Request Body:*  
   ```json
   {
-    "email": "john.doe@example.com"
+    "email": "teaxmarkit@gmail.com"
   }
   ```  
 
@@ -573,7 +573,7 @@ All endpoints are prefixed with `/api` as configured in `main.ts`.
   *Request Body:*  
   ```json
   {
-    "email": "john.doe@example.com",
+    "email": "teaxmarkit@gmail.com",
     "otp": "123456",
     "new_password": "newsecret123"
   }
@@ -1651,7 +1651,7 @@ export default function AuthCallback() {
     "display_name": "John Doe",
     "nick_name": "Johnny",                     // optional field
     "username": "johndoe",
-    "email": "john.doe@example.com",
+    "email": "teaxmarkit@gmail.com",
     "password_status": "active",              // optional
     "status": "active",
     "is_verified": true,
@@ -1773,7 +1773,7 @@ export default function AuthCallback() {
         "user_nano_id": "generated_id",
         "display_name": "John Doe",
         "username": "johndoe",
-        "email": "john.doe@example.com",
+        "email": "teaxmarkit@gmail.com",
         "photo": "https://example.com/photo.jpg"
       }
     ],
@@ -1809,7 +1809,7 @@ export default function AuthCallback() {
     "display_name": "John Doe",
     "nick_name": "Johnny",                     // optional field
     "username": "johndoe",
-    "email": "john.doe@example.com",
+    "email": "teaxmarkit@gmail.com",
     "password_status": "active",              // optional
     "status": "active",
     "is_verified": true,
@@ -1913,7 +1913,7 @@ export default function AuthCallback() {
         "display_name": "John Doe",
         "nick_name": "Johnny",                     
         "username": "johndoe",
-        "email": "john.doe@example.com",
+        "email": "teaxmarkit@gmail.com",
         "password_status": "active",             
         "status": "active",
         "is_verified": true,
@@ -1959,7 +1959,7 @@ export default function AuthCallback() {
         "display_name": "John Doe",
         "nick_name": "Johnny",                     // optional field
         "username": "johndoe",
-        "email": "john.doe@example.com",
+        "email": "teaxmarkit@gmail.com",
         "password_status": "active",              // optional
         "status": "active",
         "is_verified": true,
@@ -2058,7 +2058,7 @@ export default function AuthCallback() {
         "display_name": "John Doe",
         "nick_name": "Johnny",                     // optional field
         "username": "johndoe",
-        "email": "john.doe@example.com",
+        "email": "teaxmarkit@gmail.com",
         "password_status": "active",              // optional
         "status": "active",
         "is_verified": true,
@@ -2327,7 +2327,7 @@ export default function AuthCallback() {
         "display_name": "John Doe",
         "nick_name": "Johnny",                     // optional field
         "username": "johndoe",
-        "email": "john.doe@example.com",
+        "email": "teaxmarkit@gmail.com",
         "password_status": "active",              // optional
         "status": "active",
         "is_verified": true,
